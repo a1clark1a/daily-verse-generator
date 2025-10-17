@@ -5,12 +5,24 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Link as ChakraLink, Text, Icon } from "@chakra-ui/react";
+import {
+  Link as ChakraLink,
+  Text,
+  Icon,
+  AbsoluteCenter,
+  Box,
+} from "@chakra-ui/react";
 import { HiHeart } from "react-icons/hi";
 
 import {
   FooterContainer,
+  GenerateQuoteButton,
+  GenerateQuoteButtonText,
   GradientBackgroundCon,
+  QuoteGeneratorCon,
+  QuoteGeneratorInnerCon,
+  QuoteGeneratorSubtitle,
+  QuoteGeneratorTitle,
 } from "@/components/quoteGenerator/QuoteGeneratorElements";
 
 // images
@@ -22,6 +34,36 @@ export default function Home() {
 
   return (
     <GradientBackgroundCon>
+      <AbsoluteCenter>
+        <QuoteGeneratorCon>
+          <QuoteGeneratorInnerCon>
+            <QuoteGeneratorTitle>
+              Daily Inspiration Generator
+            </QuoteGeneratorTitle>
+            <br />
+            <QuoteGeneratorSubtitle>
+              Looking for a splash of inspiration? Generate a quote card with a
+              random inspirational quote provided by{" "}
+              <ChakraLink
+                href="https://zenquotes.io/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                ZenQuotes API
+              </ChakraLink>
+              .
+              <Box>
+                <br />
+              </Box>
+              <GenerateQuoteButton>
+                <GenerateQuoteButtonText>
+                  Generate Quote
+                </GenerateQuoteButtonText>
+              </GenerateQuoteButton>
+            </QuoteGeneratorSubtitle>
+          </QuoteGeneratorInnerCon>
+        </QuoteGeneratorCon>
+      </AbsoluteCenter>
       <Image src={cloud1} alt="cloudImage1" priority height={300} />
 
       <Image
