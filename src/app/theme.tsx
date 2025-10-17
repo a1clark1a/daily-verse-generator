@@ -12,11 +12,9 @@ const config = defineConfig({
   theme: {
     keyframes: {
       gradient: {
-        "0%": {
-          backgroundPosition: "0% 50%",
-        },
-        "50%": { backgroundPosition: "100% 50%", backgroundColor: "#0c3642" },
-        "100%": { backgroundPosition: "0% 50%" },
+        "0%": { backgroundPosition: "0% 50%", backgroundColor: "#000046" },
+        "50%": { backgroundPosition: "100% 50%", backgroundColor: "#1cb5e0" },
+        "100%": { backgroundPosition: "0% 50%", backgroundColor: "#000046" },
       },
     },
     animationStyles,

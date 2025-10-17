@@ -4,7 +4,7 @@ const animationStyles = defineAnimationStyles({
   gradient: {
     value: {
       animationName: "gradient",
-      animationDuration: "2s",
+      animationDuration: "6s",
       animationTimingFunction: "ease-in-out",
       animationIterationCount: "infinite",
     },
