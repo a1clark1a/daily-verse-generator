@@ -1,4 +1,4 @@
-"use client";
+"use client"; // pages should be server side fix this later
 
 import { useState } from "react";
 
@@ -95,7 +95,7 @@ export default function Home() {
               target="_blank"
               rel="noreferrer"
             >
-              Anthony Clark Perfecto
+              Clark Perfecto
             </ChakraLink>{" "}
             @{new Date().getFullYear()}
           </Text>

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AbsoluteCenter,
   Box,
@@ -29,20 +31,22 @@ export const GradientBackgroundCon = (props: BoxProps) => {
 
 export const FooterContainer = (props: ContainerProps) => {
   return (
-    <Container
-      width={"100vw"}
-      height={50}
-      textAlign={"center"}
-      fontSize={15}
-      position={"absolute"}
-      bottom={0}
-      color={"white"}
-      zIndex={9999999}
-      style={{
-        fontFamily: "Source Code Pro, monospace",
-      }}
-      {...props}
-    />
+    <Center>
+      <Container
+        width={"100vw"}
+        height={50}
+        textAlign={"center"}
+        fontSize={15}
+        position={"absolute"}
+        bottom={0}
+        color={"white"}
+        zIndex={9999999}
+        style={{
+          fontFamily: "Source Code Pro, monospace",
+        }}
+        {...props}
+      />
+    </Center>
   );
 };
 
