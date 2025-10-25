@@ -17,14 +17,9 @@ export const GradientBackgroundCon = (props: BoxProps) => {
   return (
     <Box
       minH="100vh"
-      bgSize={"cover"}
-      bgGradient={"to-r"}
-      gradientFrom={"blackAlpha.400"}
-      gradientTo={"cyan.400"}
-      data-state="open"
-      animationDuration="slow"
-      animationStyle={{ _open: "gradient" }}
       {...props}
+      bgSize={"cover"}
+      animation="gradient 15s ease infinite"
     />
   );
 };
