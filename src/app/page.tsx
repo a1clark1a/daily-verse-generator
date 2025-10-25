@@ -1,68 +1,46 @@
-"use client"; // pages should be server side fix this later
-
-import { useState } from "react";
-
 import Image from "next/image";
-import Link from "next/link";
-
 import {
   Link as ChakraLink,
   Text,
   Icon,
   AbsoluteCenter,
-  Box,
 } from "@chakra-ui/react";
 import { HiHeart } from "react-icons/hi";
 
+import { QuoteGenerator } from "@/components/quoteGenerator/QuoteGenerator";
+
 import {
   FooterContainer,
-  GenerateQuoteButton,
-  GenerateQuoteButtonText,
   GradientBackgroundCon,
-  QuoteGeneratorCon,
-  QuoteGeneratorInnerCon,
-  QuoteGeneratorSubtitle,
-  QuoteGeneratorTitle,
 } from "@/components/quoteGenerator/QuoteGeneratorElements";
 
 // images
 import cloud1 from "@/assets/cloud-and-thunder.png";
 import cloud2 from "@/assets/cloudy-weather.png";
 
-export default function Home() {
-  const [numberOfQuotes, setNumberOfQuotes] = useState<number | null>(0);
+async function getInitialQuoteCount() {
+  try {
+    const url = process.env.GET_QUOTE_COUNT_URL;
+    if (!url) throw new Error("No count url detected");
+
+    const res = await fetch(url, { next: { revalidate: 60 } });
+
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return data.count || 0;
+  } catch (error) {
+    console.error(error);
+    return 0;
+  }
+}
+
+export default async function Home() {
+  const initialCount = await getInitialQuoteCount();
 
   return (
     <GradientBackgroundCon>
       <AbsoluteCenter>
-        <QuoteGeneratorCon>
-          <QuoteGeneratorInnerCon>
-            <QuoteGeneratorTitle>
-              Daily Inspiration Generator
-            </QuoteGeneratorTitle>
-            <br />
-            <QuoteGeneratorSubtitle>
-              Looking for a splash of inspiration? Generate a quote card with a
-              random inspirational quote provided by{" "}
-              <ChakraLink
-                href="https://zenquotes.io/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                ZenQuotes API
-              </ChakraLink>
-              .
-              <Box>
-                <br />
-              </Box>
-              <GenerateQuoteButton>
-                <GenerateQuoteButtonText>
-                  Generate Quote
-                </GenerateQuoteButtonText>
-              </GenerateQuoteButton>
-            </QuoteGeneratorSubtitle>
-          </QuoteGeneratorInnerCon>
-        </QuoteGeneratorCon>
+        <QuoteGenerator />
       </AbsoluteCenter>
       <Image src={cloud1} alt="cloudImage1" priority height={300} />
 
@@ -81,7 +59,7 @@ export default function Home() {
 
       <FooterContainer>
         <>
-          Quotes Generated: {numberOfQuotes}
+          Quotes Generated: {initialCount}
           <br />
           <Text>
             Developed with{" "}
