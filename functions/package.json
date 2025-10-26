@@ -13,9 +13,11 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "axios": "^1.12.2",
     "cors": "^2.8.5",
     "firebase-admin": "^12.7.0",

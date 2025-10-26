@@ -20,7 +20,7 @@ import cloud2 from "@/assets/cloudy-weather.png";
 
 async function getInitialQuoteCount() {
   try {
-    const url = process.env.GET_QUOTE_COUNT_URL;
+    const url = process.env.GET_VERSE_COUNT_URL;
     if (!url) throw new Error("No count url detected");
 
     const res = await fetch(url, { next: { revalidate: 60 } });
