@@ -7,7 +7,7 @@ export async function generateQuoteAction(): Promise<{
   error?: string;
 }> {
   try {
-    const url = process.env.GENERATE_QUOTE_URL;
+    const url = process.env.GENERATE_VERSE_URL;
     if (!url) {
       throw new Error("Missing environment variable: GENERATE_QUOTE_URL");
     }
