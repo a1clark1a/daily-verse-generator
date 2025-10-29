@@ -7,12 +7,9 @@ import {
   Box,
   Image,
   Spinner,
-  Button as ChakraButton, // Renamed to avoid conflict
-  // --- CORRECT Dialog compound components ---
+  Button as ChakraButton,
   Dialog,
-  Portal, // Needed to render dialog outside main DOM tree
-  CloseButton, // For the manual close button
-  // --- Other necessary imports ---
+  Portal,
   VStack,
   Center,
 } from "@chakra-ui/react";
@@ -20,17 +17,17 @@ import {
 import { HiX } from "react-icons/hi";
 
 import {
-  QuoteGeneratorCon,
-  QuoteGeneratorInnerCon,
-  QuoteGeneratorSubtitle,
-  QuoteGeneratorTitle,
-  GenerateQuoteButton,
-  GenerateQuoteButtonText,
-} from "@/components/quoteGenerator/QuoteGeneratorElements";
+  VerseGeneratorCon,
+  VerseGeneratorInnerCon,
+  VerseGeneratorSubtitle,
+  VerseGeneratorTitle,
+  GenerateVerseButton,
+  GenerateVerseButtonText,
+} from "@/components/verseGenerator/VerseGeneratorElements";
 
-import { generateQuoteAction } from "@/app/actions";
+import { generateVerseAction } from "@/app/actions";
 
-export function QuoteGenerator() {
+export function VerseGenerator() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -42,7 +39,7 @@ export function QuoteGenerator() {
     setIsOpen(true);
 
     startTransition(async () => {
-      const result = await generateQuoteAction();
+      const result = await generateVerseAction();
       if (result.error) {
         setError(result.error);
       } else if (result.imageUrl) {
@@ -55,7 +52,7 @@ export function QuoteGenerator() {
     if (!imageUrl) return;
     const link = document.createElement("a");
     link.href = imageUrl;
-    link.download = `quote-${Date.now()}.png`;
+    link.download = `Verse-${Date.now()}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -72,11 +69,11 @@ export function QuoteGenerator() {
 
   return (
     <>
-      <QuoteGeneratorCon>
-        <QuoteGeneratorInnerCon>
-          <QuoteGeneratorTitle>Daily Inspiration Generator</QuoteGeneratorTitle>
+      <VerseGeneratorCon>
+        <VerseGeneratorInnerCon>
+          <VerseGeneratorTitle>Your Daily Bible Verse</VerseGeneratorTitle>
           <br />
-          <QuoteGeneratorSubtitle>
+          <VerseGeneratorSubtitle>
             Looking for a splash of inspiration? Generate a quote card with a
             random inspiration quote provided by{" "}
             <ChakraLink
@@ -90,16 +87,16 @@ export function QuoteGenerator() {
             <Box>
               <br />
             </Box>
-            <GenerateQuoteButton
+            <GenerateVerseButton
               onClick={handleGenerateClick}
               loading={isPending}
               disabled={isPending}
             >
-              <GenerateQuoteButtonText>Generate Quote</GenerateQuoteButtonText>
-            </GenerateQuoteButton>
-          </QuoteGeneratorSubtitle>
-        </QuoteGeneratorInnerCon>
-      </QuoteGeneratorCon>
+              <GenerateVerseButtonText>Generate Verse</GenerateVerseButtonText>
+            </GenerateVerseButton>
+          </VerseGeneratorSubtitle>
+        </VerseGeneratorInnerCon>
+      </VerseGeneratorCon>
 
       <Dialog.Root // Main wrapper, controls state
         lazyMount // Only mount content when open
@@ -123,14 +120,13 @@ export function QuoteGenerator() {
               <Dialog.Header textAlign="center">
                 <Dialog.Title>
                   {isPending
-                    ? "Generating Quote..."
+                    ? "Generating Verse..."
                     : error
                       ? "Error"
-                      : "Your Quote"}
+                      : "Your Verse"}
                 </Dialog.Title>
               </Dialog.Header>
 
-              {/* Use Dialog.CloseTrigger for the 'X' button */}
               <Dialog.CloseTrigger asChild></Dialog.CloseTrigger>
 
               <Dialog.Body>
@@ -144,23 +140,23 @@ export function QuoteGenerator() {
                   )}
                   {error && (
                     <Text color="red.300" textAlign="center">
-                      Failed to generate quote: {error}
+                      Failed to generate Verse: {error}
                     </Text>
                   )}
                   {imageUrl && !isPending && !error && (
                     <Box
-                      w="100%"
+                      w="50%"
                       h="auto"
                       position="relative"
                       transition="transform 0.3s ease-in-out"
                       _hover={{
-                        transform: "scale(1.15)",
+                        transform: "scale(2.50)",
                         zIndex: 10,
                       }}
                     >
                       <Image
                         src={imageUrl}
-                        alt="Generated Quote"
+                        alt="Generated Verse"
                         boxShadow="lg"
                         borderRadius="md"
                         objectFit="contain"
@@ -173,7 +169,6 @@ export function QuoteGenerator() {
               </Dialog.Body>
 
               <Dialog.Footer justifyContent="center">
-                {/* Footer section */}
                 {imageUrl && !isPending && !error && (
                   <ChakraButton
                     colorScheme="purple"
@@ -183,7 +178,7 @@ export function QuoteGenerator() {
                     Download
                   </ChakraButton>
                 )}
-                {/* Use Dialog.CloseTrigger for the "Close" button */}
+
                 <Dialog.CloseTrigger asChild>
                   <ChakraButton
                     variant="ghost"

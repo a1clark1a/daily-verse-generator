@@ -2,14 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 
-export async function generateQuoteAction(): Promise<{
+export async function generateVerseAction(): Promise<{
   imageUrl?: string;
   error?: string;
 }> {
   try {
     const url = process.env.GENERATE_VERSE_URL;
     if (!url) {
-      throw new Error("Missing environment variable: GENERATE_QUOTE_URL");
+      throw new Error("Missing environment variable: GENERATE_VERSE_URL");
     }
 
     const res = await fetch(url, {
@@ -18,12 +18,12 @@ export async function generateQuoteAction(): Promise<{
     });
 
     if (!res.ok) {
-      throw new Error("Failed to generate quote from API");
+      throw new Error("Failed to generate Verse from API");
     }
     const data = await res.json();
 
     // This tells Next.js to refetch the data for the page
-    // which will update the quote count automatically.
+    // which will update the Verse count automatically.
     revalidatePath("/");
     return { imageUrl: data.imageUrl };
   } catch (error) {
