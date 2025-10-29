@@ -45,7 +45,7 @@ export const FooterContainer = (props: ContainerProps) => {
   );
 };
 
-export const QuoteGeneratorCon = (props: ContainerProps) => {
+export const VerseGeneratorCon = (props: ContainerProps) => {
   return (
     <Container
       minH={350}
@@ -65,7 +65,7 @@ export const QuoteGeneratorCon = (props: ContainerProps) => {
   );
 };
 
-export const QuoteGeneratorInnerCon = (props: ContainerProps) => {
+export const VerseGeneratorInnerCon = (props: ContainerProps) => {
   return (
     <Container
       style={{
@@ -80,7 +80,7 @@ export const QuoteGeneratorInnerCon = (props: ContainerProps) => {
   );
 };
 
-export const QuoteGeneratorTitle = (props: BoxProps) => {
+export const VerseGeneratorTitle = (props: BoxProps) => {
   return (
     <Box
       fontFamily={"Permanent Marker, cursive"}
@@ -95,7 +95,7 @@ export const QuoteGeneratorTitle = (props: BoxProps) => {
   );
 };
 
-export const QuoteGeneratorSubtitle = (props: BoxProps) => {
+export const VerseGeneratorSubtitle = (props: BoxProps) => {
   return (
     <Center>
       <Box
@@ -113,7 +113,7 @@ export const QuoteGeneratorSubtitle = (props: BoxProps) => {
   );
 };
 
-export const GenerateQuoteButton = (props: ButtonProps) => {
+export const GenerateVerseButton = (props: ButtonProps) => {
   return (
     <AbsoluteCenter>
       <Button
@@ -142,7 +142,7 @@ export const GenerateQuoteButton = (props: ButtonProps) => {
   );
 };
 
-export const GenerateQuoteButtonText = (props: TextProps) => {
+export const GenerateVerseButtonText = (props: TextProps) => {
   return (
     <AbsoluteCenter>
       <Text
