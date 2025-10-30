@@ -24,8 +24,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Inspirational Quote App",
-  description: "Generate Inspirational Quotes",
+  title: "Daily Verse - Bible Verse Generator",
+  description: "Generate and share daily inspirational Bible verses",
 };
 
 export default function RootLayout({
@@ -37,6 +37,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${permanentMarker.variable} ${caveat.variable}`}
+        suppressHydrationWarning
       >
         <Provider>{children}</Provider>
       </body>

@@ -179,10 +179,13 @@ export const generateVerseImage = onRequest(
   (req, res) => {
     corsHandler(req, res, async () => {
       try {
-        // fetch verses
-        functions.logger.info("Fetching verse...");
+        // Get translation from request body, default to kjv
+        const requestTranslation = req.body?.translation || "kjv";
+        functions.logger.info(`Fetching verse with translation: ${requestTranslation}...`);
+
+        // fetch verses with the specified translation
         const verseResponse = await axios.get(
-          "https://bible-api.com/data/kjv/random"
+          `https://bible-api.com/data/${requestTranslation}/random`
         );
 
         const { verse, chapter, book, text } = verseResponse.data.random_verse;
