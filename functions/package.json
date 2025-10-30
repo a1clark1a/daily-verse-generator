@@ -1,7 +1,7 @@
 {
   "name": "functions",
   "version": "1.0.0",
-  "description": "Firebase Functions for Quote Generator",
+  "description": "Firebase Functions for Daily Bible Verse Generator",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",

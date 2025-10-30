@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 
-export async function generateVerseAction(): Promise<{
+export async function generateVerseAction(
+  translation: string = "kjv"
+): Promise<{
   imageUrl?: string;
   error?: string;
 }> {
@@ -14,6 +16,10 @@ export async function generateVerseAction(): Promise<{
 
     const res = await fetch(url, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ translation }),
       cache: "no-store",
     });
 

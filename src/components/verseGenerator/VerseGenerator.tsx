@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import {
-  Link as ChakraLink,
   Text,
   Box,
   Image,
@@ -12,26 +11,25 @@ import {
   Portal,
   VStack,
   Center,
+  HStack,
+  IconButton,
 } from "@chakra-ui/react";
-
-import { HiX } from "react-icons/hi";
+import { FaFacebook, FaTwitter, FaInstagram, FaShare } from "react-icons/fa";
 
 import {
-  VerseGeneratorCon,
-  VerseGeneratorInnerCon,
-  VerseGeneratorSubtitle,
-  VerseGeneratorTitle,
   GenerateVerseButton,
   GenerateVerseButtonText,
 } from "@/components/verseGenerator/VerseGeneratorElements";
 
 import { generateVerseAction } from "@/app/actions";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export function VerseGenerator() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const { translation } = useTranslation();
 
   const handleGenerateClick = () => {
     setError(null);
@@ -39,7 +37,7 @@ export function VerseGenerator() {
     setIsOpen(true);
 
     startTransition(async () => {
-      const result = await generateVerseAction();
+      const result = await generateVerseAction(translation);
       if (result.error) {
         setError(result.error);
       } else if (result.imageUrl) {
@@ -67,41 +65,80 @@ export function VerseGenerator() {
     }
   };
 
+  const handleShare = async (platform: "facebook" | "twitter" | "instagram" | "native") => {
+    if (!imageUrl) return;
+
+    try {
+      // Try native Web Share API first (works best for mobile and Instagram)
+      if ((platform === "native" || platform === "instagram") && navigator.share) {
+        // Fetch the image as a blob
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], "verse.png", { type: "image/png" });
+
+        // Check if files can be shared
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: "Daily Verse",
+            text: "Check out this inspirational verse!",
+            files: [file],
+          });
+          return;
+        }
+      }
+
+      // For Instagram on desktop or if native share fails, download the image
+      if (platform === "instagram") {
+        // Instagram doesn't have a web share API, so we download and prompt user
+        handleDownload();
+        alert("Image downloaded! Please upload it to Instagram from your device.");
+        return;
+      }
+
+      // Platform-specific sharing for Facebook and Twitter
+      const shareUrl = encodeURIComponent(window.location.origin);
+      const text = encodeURIComponent("Check out this inspirational verse!");
+
+      switch (platform) {
+        case "facebook":
+          // Facebook doesn't support direct image sharing via URL, so we open sharer
+          window.open(
+            `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
+            "_blank",
+            "width=600,height=400"
+          );
+          break;
+        case "twitter":
+          // Twitter intent URL
+          window.open(
+            `https://twitter.com/intent/tweet?text=${text}&url=${shareUrl}`,
+            "_blank",
+            "width=600,height=400"
+          );
+          break;
+      }
+    } catch (error) {
+      console.error("Error sharing:", error);
+      // If sharing fails, fall back to download
+      handleDownload();
+    }
+  };
+
   return (
     <>
-      <VerseGeneratorCon>
-        <VerseGeneratorInnerCon>
-          <VerseGeneratorTitle>Your Daily Bible Verse</VerseGeneratorTitle>
-          <br />
-          <VerseGeneratorSubtitle>
-            Looking for a splash of inspiration? Generate a quote card with a
-            random inspiration quote provided by{" "}
-            <ChakraLink
-              href="https://zenquotes.uo/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ZenQuotes API
-            </ChakraLink>
-            .
-            <Box>
-              <br />
-            </Box>
-            <GenerateVerseButton
-              onClick={handleGenerateClick}
-              loading={isPending}
-              disabled={isPending}
-            >
-              <GenerateVerseButtonText>Generate Verse</GenerateVerseButtonText>
-            </GenerateVerseButton>
-          </VerseGeneratorSubtitle>
-        </VerseGeneratorInnerCon>
-      </VerseGeneratorCon>
+      <GenerateVerseButton
+        onClick={handleGenerateClick}
+        loading={isPending}
+        disabled={isPending}
+      >
+        <GenerateVerseButtonText>Generate Verse</GenerateVerseButtonText>
+      </GenerateVerseButton>
 
       <Dialog.Root // Main wrapper, controls state
         lazyMount // Only mount content when open
         open={isOpen}
         onOpenChange={handleOpenChange} // Handles closing and state reset
+        placement={"center"}
       >
         <Portal>
           {/* Renders dialog outside normal DOM flow */}
@@ -110,12 +147,22 @@ export function VerseGenerator() {
           <Dialog.Positioner>
             {/* Centers the content */}
             <Dialog.Content // The dialog box itself
-              bg="rgba(40, 40, 80, 0.8)"
+              bg={{
+                _light: "rgba(255, 255, 255, 0.95)",
+                _dark: "rgba(10, 77, 78, 0.85)",
+              }}
               backdropFilter="blur(15px)"
-              border="1px solid rgba(255, 255, 255, 0.1)"
+              border="1px solid"
+              borderColor={{
+                _light: "tranquilTeal.200",
+                _dark: "tranquilTeal.600",
+              }}
               borderRadius="lg"
-              color="white"
-              maxW="xl"
+              color={{
+                _light: "tranquilNavy.700",
+                _dark: "tranquilCream.50",
+              }}
+              maxW="1000px"
             >
               <Dialog.Header textAlign="center">
                 <Dialog.Title>
@@ -134,23 +181,23 @@ export function VerseGenerator() {
                 <Center minH="300px">
                   {isPending && (
                     <VStack>
-                      <Spinner size="xl" color="purple.300" />
+                      <Spinner size="xl" color="tranquilTeal.400" />
                       <Text mt={4}>Fetching your inspiration...</Text>
                     </VStack>
                   )}
                   {error && (
-                    <Text color="red.300" textAlign="center">
+                    <Text color="red.500" textAlign="center">
                       Failed to generate Verse: {error}
                     </Text>
                   )}
                   {imageUrl && !isPending && !error && (
                     <Box
-                      w="50%"
+                      w="90%"
                       h="auto"
                       position="relative"
                       transition="transform 0.3s ease-in-out"
                       _hover={{
-                        transform: "scale(2.50)",
+                        transform: "scale(1.15)",
                         zIndex: 10,
                       }}
                     >
@@ -162,32 +209,199 @@ export function VerseGenerator() {
                         objectFit="contain"
                         maxW="100%"
                         maxH="400px"
+                        placeSelf={"center"}
                       />
                     </Box>
                   )}
                 </Center>
               </Dialog.Body>
 
-              <Dialog.Footer justifyContent="center">
+              <Dialog.Footer justifyContent="center" flexDirection="column" gap={3}>
                 {imageUrl && !isPending && !error && (
-                  <ChakraButton
-                    colorScheme="purple"
-                    mr={3}
-                    onClick={handleDownload}
-                  >
-                    Download
-                  </ChakraButton>
+                  <>
+                    {/* Share Buttons */}
+                    <VStack gap={2} w="100%">
+                      <Text
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        color={{
+                          _light: "tranquilNavy.600",
+                          _dark: "tranquilCream.300",
+                        }}
+                      >
+                        Share your verse:
+                      </Text>
+                      <HStack gap={3}>
+                        {/* Native Share (Mobile) - Only show if Web Share API is available */}
+                        {typeof window !== "undefined" && "share" in navigator && (
+                          <IconButton
+                            aria-label="Share"
+                            onClick={() => handleShare("native")}
+                            size="lg"
+                            variant="outline"
+                            colorScheme="teal"
+                            borderColor={{
+                              _light: "tranquilTeal.400",
+                              _dark: "tranquilTeal.300",
+                            }}
+                            color={{
+                              _light: "tranquilTeal.600",
+                              _dark: "tranquilTeal.200",
+                            }}
+                            _hover={{
+                              bg: {
+                                _light: "tranquilTeal.50",
+                                _dark: "tranquilTeal.900",
+                              },
+                              transform: "scale(1.1)",
+                            }}
+                            transition="all 0.2s"
+                          >
+                            <FaShare size={20} />
+                          </IconButton>
+                        )}
+
+                        {/* Facebook */}
+                        <IconButton
+                          aria-label="Share on Facebook"
+                          onClick={() => handleShare("facebook")}
+                          size="lg"
+                          variant="outline"
+                          colorScheme="blue"
+                          borderColor={{
+                            _light: "tranquilSky.400",
+                            _dark: "tranquilSky.300",
+                          }}
+                          color={{
+                            _light: "tranquilSky.600",
+                            _dark: "tranquilSky.200",
+                          }}
+                          _hover={{
+                            bg: {
+                              _light: "tranquilSky.50",
+                              _dark: "tranquilSky.900",
+                            },
+                            transform: "scale(1.1)",
+                          }}
+                          transition="all 0.2s"
+                        >
+                          <FaFacebook size={20} />
+                        </IconButton>
+
+                        {/* Twitter */}
+                        <IconButton
+                          aria-label="Share on Twitter"
+                          onClick={() => handleShare("twitter")}
+                          size="lg"
+                          variant="outline"
+                          colorScheme="blue"
+                          borderColor={{
+                            _light: "tranquilSky.500",
+                            _dark: "tranquilSky.400",
+                          }}
+                          color={{
+                            _light: "tranquilSky.700",
+                            _dark: "tranquilSky.300",
+                          }}
+                          _hover={{
+                            bg: {
+                              _light: "tranquilSky.50",
+                              _dark: "tranquilSky.900",
+                            },
+                            transform: "scale(1.1)",
+                          }}
+                          transition="all 0.2s"
+                        >
+                          <FaTwitter size={20} />
+                        </IconButton>
+
+                        {/* Instagram */}
+                        <IconButton
+                          aria-label="Share on Instagram"
+                          onClick={() => handleShare("instagram")}
+                          size="lg"
+                          variant="outline"
+                          borderColor={{
+                            _light: "tranquilGold.400",
+                            _dark: "tranquilGold.300",
+                          }}
+                          color={{
+                            _light: "tranquilGold.600",
+                            _dark: "tranquilGold.200",
+                          }}
+                          _hover={{
+                            bg: {
+                              _light: "tranquilGold.50",
+                              _dark: "tranquilGold.900",
+                            },
+                            transform: "scale(1.1)",
+                          }}
+                          transition="all 0.2s"
+                        >
+                          <FaInstagram size={20} />
+                        </IconButton>
+                      </HStack>
+                    </VStack>
+
+                    {/* Action Buttons */}
+                    <HStack gap={3} mt={2}>
+                      <ChakraButton
+                        bg={{
+                          _light: "tranquilTeal.500",
+                          _dark: "tranquilTeal.600",
+                        }}
+                        color="white"
+                        _hover={{
+                          bg: {
+                            _light: "tranquilTeal.600",
+                            _dark: "tranquilTeal.500",
+                          },
+                        }}
+                        onClick={handleDownload}
+                      >
+                        Download
+                      </ChakraButton>
+
+                      <Dialog.CloseTrigger asChild>
+                        <ChakraButton
+                          variant="ghost"
+                          color={{
+                            _light: "tranquilNavy.600",
+                            _dark: "tranquilCream.200",
+                          }}
+                          _hover={{
+                            bg: {
+                              _light: "tranquilTeal.50",
+                              _dark: "whiteAlpha.200",
+                            },
+                          }}
+                        >
+                          Close
+                        </ChakraButton>
+                      </Dialog.CloseTrigger>
+                    </HStack>
+                  </>
                 )}
 
-                <Dialog.CloseTrigger asChild>
-                  <ChakraButton
-                    variant="ghost"
-                    color="gray.300"
-                    _hover={{ bg: "whiteAlpha.200" }}
-                  >
-                    Close
-                  </ChakraButton>
-                </Dialog.CloseTrigger>
+                {!imageUrl && (
+                  <Dialog.CloseTrigger asChild>
+                    <ChakraButton
+                      variant="ghost"
+                      color={{
+                        _light: "tranquilNavy.600",
+                        _dark: "tranquilCream.200",
+                      }}
+                      _hover={{
+                        bg: {
+                          _light: "tranquilTeal.50",
+                          _dark: "whiteAlpha.200",
+                        },
+                      }}
+                    >
+                      Close
+                    </ChakraButton>
+                  </Dialog.CloseTrigger>
+                )}
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Positioner>
