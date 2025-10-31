@@ -380,12 +380,6 @@ export const getVerseCount = onRequest(
   async (req, res) => {
     corsHandler(req, res, async () => {
       try {
-        // Verify App Check token
-        await verifyAppCheck(req);
-
-        // Rate Limit
-        await verifyRateLimit(req.ip);
-
         // Get verse count from stats document
         const statsRef = db.collection("stats").doc("verse");
         const doc = await statsRef.get();

@@ -16,6 +16,9 @@ import {
 } from "@chakra-ui/react";
 import { FaFacebook, FaTwitter, FaInstagram, FaShare } from "react-icons/fa";
 
+import { appCheckInstance } from "@/lib/firebase";
+import { getToken } from "@firebase/app-check";
+
 import {
   GenerateVerseButton,
   GenerateVerseButtonText,
@@ -31,13 +34,43 @@ export function VerseGenerator() {
   const [isPending, startTransition] = useTransition();
   const { translation } = useTranslation();
 
-  const handleGenerateClick = () => {
+  const handleGenerateClick = async () => {
     setError(null);
     setImageUrl(null);
     setIsOpen(true);
 
+    let appCheckToken: string | undefined = undefined;
+    if (!appCheckInstance) {
+      console.error(
+        "App Check instance is not available. Did initialization fail?"
+      );
+      setError("App validation service failed to load. Please refresh.");
+      setIsOpen(false);
+      return;
+    }
+
+    try {
+      // Get the token using the imported instance
+      const tokenResponse = await getToken(
+        appCheckInstance,
+        /* forceRefresh= */ false
+      );
+      appCheckToken = tokenResponse.token;
+    } catch (err) {
+      console.error("Error getting App Check token:", err);
+      setError("Could not verify app. Please try again.");
+      setIsOpen(false);
+      return;
+    }
+
+    if (!appCheckToken) {
+      setError("Could not get validation token. Please refresh.");
+      setIsOpen(false);
+      return;
+    }
+
     startTransition(async () => {
-      const result = await generateVerseAction(translation);
+      const result = await generateVerseAction(appCheckToken, translation);
       if (result.error) {
         setError(result.error);
       } else if (result.imageUrl) {
@@ -65,12 +98,17 @@ export function VerseGenerator() {
     }
   };
 
-  const handleShare = async (platform: "facebook" | "twitter" | "instagram" | "native") => {
+  const handleShare = async (
+    platform: "facebook" | "twitter" | "instagram" | "native"
+  ) => {
     if (!imageUrl) return;
 
     try {
       // Try native Web Share API first (works best for mobile and Instagram)
-      if ((platform === "native" || platform === "instagram") && navigator.share) {
+      if (
+        (platform === "native" || platform === "instagram") &&
+        navigator.share
+      ) {
         // Fetch the image as a blob
         const response = await fetch(imageUrl);
         const blob = await response.blob();
@@ -91,7 +129,9 @@ export function VerseGenerator() {
       if (platform === "instagram") {
         // Instagram doesn't have a web share API, so we download and prompt user
         handleDownload();
-        alert("Image downloaded! Please upload it to Instagram from your device.");
+        alert(
+          "Image downloaded! Please upload it to Instagram from your device."
+        );
         return;
       }
 
@@ -216,7 +256,11 @@ export function VerseGenerator() {
                 </Center>
               </Dialog.Body>
 
-              <Dialog.Footer justifyContent="center" flexDirection="column" gap={3}>
+              <Dialog.Footer
+                justifyContent="center"
+                flexDirection="column"
+                gap={3}
+              >
                 {imageUrl && !isPending && !error && (
                   <>
                     {/* Share Buttons */}
@@ -233,33 +277,34 @@ export function VerseGenerator() {
                       </Text>
                       <HStack gap={3}>
                         {/* Native Share (Mobile) - Only show if Web Share API is available */}
-                        {typeof window !== "undefined" && "share" in navigator && (
-                          <IconButton
-                            aria-label="Share"
-                            onClick={() => handleShare("native")}
-                            size="lg"
-                            variant="outline"
-                            colorScheme="teal"
-                            borderColor={{
-                              _light: "tranquilTeal.400",
-                              _dark: "tranquilTeal.300",
-                            }}
-                            color={{
-                              _light: "tranquilTeal.600",
-                              _dark: "tranquilTeal.200",
-                            }}
-                            _hover={{
-                              bg: {
-                                _light: "tranquilTeal.50",
-                                _dark: "tranquilTeal.900",
-                              },
-                              transform: "scale(1.1)",
-                            }}
-                            transition="all 0.2s"
-                          >
-                            <FaShare size={20} />
-                          </IconButton>
-                        )}
+                        {typeof window !== "undefined" &&
+                          "share" in navigator && (
+                            <IconButton
+                              aria-label="Share"
+                              onClick={() => handleShare("native")}
+                              size="lg"
+                              variant="outline"
+                              colorScheme="teal"
+                              borderColor={{
+                                _light: "tranquilTeal.400",
+                                _dark: "tranquilTeal.300",
+                              }}
+                              color={{
+                                _light: "tranquilTeal.600",
+                                _dark: "tranquilTeal.200",
+                              }}
+                              _hover={{
+                                bg: {
+                                  _light: "tranquilTeal.50",
+                                  _dark: "tranquilTeal.900",
+                                },
+                                transform: "scale(1.1)",
+                              }}
+                              transition="all 0.2s"
+                            >
+                              <FaShare size={20} />
+                            </IconButton>
+                          )}
 
                         {/* Facebook */}
                         <IconButton
