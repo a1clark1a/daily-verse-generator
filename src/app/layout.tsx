@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Permanent_Marker, Caveat } from "next/font/google";
 import { Provider } from "@/components/ui/provider";
+import { GoogleAnalytics } from "@/components/googleAnalytics/GoogleAnalytics";
 
 const permanentMarker = Permanent_Marker({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Provider>{children}</Provider>
+        <GoogleAnalytics />
       </body>
     </html>
   );

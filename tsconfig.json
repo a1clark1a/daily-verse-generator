@@ -24,9 +24,16 @@
       "@/components/*": ["components/*"],
       "@/assets/*": ["assets/*"],
       "@/app/*": ["app/*"],
-      "@/contexts/*": ["contexts/*"]
+      "@/contexts/*": ["contexts/*"],
+      "@/lib/*": ["lib/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "lib/types/global.d.ts"
+  ],
   "exclude": ["node_modules", "functions"]
 }

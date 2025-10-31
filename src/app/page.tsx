@@ -18,24 +18,10 @@ import {
   GradientBackgroundCon,
 } from "@/components/verseGenerator/VerseGeneratorElements";
 
+import { getInitialVerseCount } from "@/app/actions";
+
 // images
 import bannerImage from "@/assets/tranquil.png";
-
-async function getInitialVerseCount() {
-  try {
-    const url = process.env.GET_VERSE_COUNT_URL;
-    if (!url) throw new Error("No count url detected");
-
-    const res = await fetch(url, { next: { revalidate: 60 } });
-
-    if (!res.ok) return 0;
-    const data = await res.json();
-    return data.count || 0;
-  } catch (error) {
-    console.error(error);
-    return 0;
-  }
-}
 
 export default async function Home() {
   const initialCount = await getInitialVerseCount();
