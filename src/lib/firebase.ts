@@ -32,7 +32,7 @@ let appCheckInstance: AppCheck | null = null;
 
 if (typeof window !== "undefined") {
   if (window.location.hostname === "localhost") {
-    const debugToken = "25606d2e-6860-4165-96a2-4102087f3ba7";
+    const debugToken = process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN;
     if (debugToken) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken;
@@ -50,8 +50,6 @@ if (typeof window !== "undefined") {
   if (siteKey) {
     try {
       // initializeAppCheck is idempotent; it won't re-init if already done
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
       appCheckInstance = initializeAppCheck(app, {
         provider: new ReCaptchaEnterpriseProvider(siteKey),
         isTokenAutoRefreshEnabled: true,
