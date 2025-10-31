@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as fs from "fs";
 import * as path from "path";
 import { onRequest } from "firebase-functions/v2/https";
@@ -28,10 +29,71 @@ const db = admin.firestore();
 // Initialize CORS middleware
 const corsHandler = cors({ origin: true });
 
+// Initialize App Check
+const appCheck = admin.appCheck();
+
 // Helper function to get a random item
 const getRandomItem = <T>(arr: T[]): T | undefined => {
   if (!arr || arr.length === 0) return undefined;
   return arr[Math.floor(Math.random() * arr.length)];
+};
+
+// Helper function for App Check
+/**
+ * Verifies the App Check token from an incoming request.
+ * Throws an error if verification fails.
+ * @param {functions.https.Request} req The incoming request object.
+ */
+const verifyAppCheck = async (req: functions.https.Request) => {
+  const appCheckToken = req.headers["x-firebase-appcheck"];
+
+  if (!appCheckToken) {
+    functions.logger.warn("App Check token not found.");
+    throw new Error("Unauthorized: App Check token not found");
+  }
+
+  try {
+    await appCheck.verifyToken(appCheckToken as string);
+    functions.logger.info("App Check token verified.");
+  } catch (error) {
+    functions.logger.error("App Check token verification failed:", error);
+    throw new Error("Unauthorized: Invalid App Check Token.");
+  }
+};
+//Rate Limiting Helper
+/**
+ * Checks and updates IP-based rate limits.
+ * Throws an error if the limit is exceeded.
+ * @param {string | undefined} ip The user's IP address.
+ */
+const verifyRateLimit = async (ip: string | undefined) => {
+  if (!ip) throw new Error("Could not identify request origin");
+
+  const now = Date.now();
+  const ipRef = db.collection("rateLimitis").doc(ip);
+  const doc = await ipRef.get();
+
+  const RATE_LIMIT_COUNT = 20;
+  const RATE_LIMIT_DURATIONS = 60 * 1000; // 1 minute
+
+  if (doc.exists) {
+    const data = doc.data() as { count: number; timestamp: number };
+    const elapsedTime = now - data.timestamp;
+
+    if (elapsedTime < RATE_LIMIT_DURATIONS) {
+      if (data.count >= RATE_LIMIT_COUNT) {
+        functions.logger.warn(`Rate limit exceeded for IP: ${ip}`);
+        throw new Error("Rate limit exceeded");
+      } else {
+        await ipRef.update({ count: admin.firestore.FieldValue.increment(1) });
+      }
+    } else {
+      await ipRef.set({ count: 1, timestamp: now });
+    }
+  } else {
+    await ipRef.set({ count: 1, timestamp: now });
+  }
+  functions.logger.info(`Rate limit check passed for IP: ${ip}`);
 };
 
 const availableIcons: IconDefinition[] = [
@@ -173,15 +235,22 @@ export const generateVerseImage = onRequest(
   {
     memory: "1GiB",
     timeoutSeconds: 60,
-    // enforceAppCheck: true,
-    // maxInstances: 20,
+    maxInstances: 20,
   },
   (req, res) => {
     corsHandler(req, res, async () => {
       try {
+        // Verify App Check token
+        await verifyAppCheck(req);
+
+        // Rate Limit
+        await verifyRateLimit(req.ip);
+
         // Get translation from request body, default to kjv
         const requestTranslation = req.body?.translation || "kjv";
-        functions.logger.info(`Fetching verse with translation: ${requestTranslation}...`);
+        functions.logger.info(
+          `Fetching verse with translation: ${requestTranslation}...`
+        );
 
         // fetch verses with the specified translation
         const verseResponse = await axios.get(
@@ -288,11 +357,16 @@ export const generateVerseImage = onRequest(
 
         functions.logger.info("Successfully generated image");
         res.status(200).json({ imageUrl: imageUrl });
-      } catch (error) {
-        functions.logger.error("Error generating image", error);
-        res.status(500).json({
-          error: "Failed to generate verse image",
-        });
+      } catch (error: any) {
+        // --- Unified Error Handling ---
+        functions.logger.error("Function failed:", error.message);
+        if (error.message.startsWith("Unauthorized:")) {
+          res.status(401).json({ error: "Unauthorized" });
+        } else if (error.message.startsWith("Rate limit exceeded")) {
+          res.status(429).json({ error: "Too Many Requests" });
+        } else {
+          res.status(500).json({ error: "Failed to generate verse image" });
+        }
       }
     });
   }
@@ -301,30 +375,43 @@ export const generateVerseImage = onRequest(
 /**
  * HTTP function to get verse count
  */
-export const getVerseCount = onRequest(async (req, res) => {
-  corsHandler(req, res, async () => {
-    try {
-      // Get verse count from stats document
-      const statsRef = db.collection("stats").doc("verse");
-      const doc = await statsRef.get();
+export const getVerseCount = onRequest(
+  { maxInstances: 50 },
+  async (req, res) => {
+    corsHandler(req, res, async () => {
+      try {
+        // Verify App Check token
+        await verifyAppCheck(req);
 
-      let count = 0;
-      if (doc.exists) {
-        count = doc.data()?.count || 0;
-      } else {
-        await statsRef.set({ count: 0 });
+        // Rate Limit
+        await verifyRateLimit(req.ip);
+
+        // Get verse count from stats document
+        const statsRef = db.collection("stats").doc("verse");
+        const doc = await statsRef.get();
+
+        let count = 0;
+        if (doc.exists) {
+          count = doc.data()?.count || 0;
+        } else {
+          await statsRef.set({ count: 0 });
+        }
+
+        res.status(200).json({
+          count: count,
+          timestamp: new Date().toISOString(),
+        });
+      } catch (error: any) {
+        // --- Unified Error Handling ---
+        functions.logger.error("Function failed:", error.message);
+        if (error.message.startsWith("Unauthorized:")) {
+          res.status(401).json({ error: "Unauthorized" });
+        } else if (error.message.startsWith("Rate limit exceeded")) {
+          res.status(429).json({ error: "Too Many Requests" });
+        } else {
+          res.status(500).json({ error: "Failed to get verse count" });
+        }
       }
-
-      res.status(200).json({
-        count: count,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      functions.logger.error("Error getting verse count:", error);
-      res.status(500).json({
-        error: "Failed to get verse count",
-        count: 0,
-      });
-    }
-  });
-});
+    });
+  }
+);
