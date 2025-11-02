@@ -93,6 +93,19 @@ export default async function Home() {
               </ChakraLink>{" "}
               @{new Date().getFullYear()}
             </Text>
+            <Text fontSize="xs" color="whiteAlpha.800">
+              <ChakraLink
+                href="https://www.flaticon.com/free-icons/bible"
+                title="bible icons"
+                target="_blank"
+                rel="noreferrer"
+                textDecoration="underline"
+                color="whiteAlpha.800"
+                _hover={{ color: "tranquilTeal.200" }}
+              >
+                Bible icons created by Freepik - Flaticon
+              </ChakraLink>
+            </Text>
           </VStack>
         </FooterContainer>
       </GradientBackgroundCon>

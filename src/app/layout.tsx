@@ -27,6 +27,44 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Daily Verse - Bible Verse Generator",
   description: "Generate and share daily inspirational Bible verses",
+  manifest: "/manifest.json",
+  themeColor: "#0A4D4E",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+  },
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+    ],
+    apple: [
+      { url: "/180x180.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Daily Verse",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Daily Verse",
+    title: "Daily Verse - Bible Verse Generator",
+    description: "Generate and share daily inspirational Bible verses",
+  },
+  twitter: {
+    card: "summary",
+    title: "Daily Verse - Bible Verse Generator",
+    description: "Generate and share daily inspirational Bible verses",
+  },
 };
 
 export default function RootLayout({
