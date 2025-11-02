@@ -3,17 +3,11 @@
 import { revalidatePath } from "next/cache";
 
 export async function generateVerseAction(
-  appCheckToken: string,
   translation: string = "kjv"
 ): Promise<{
   imageUrl?: string;
   error?: string;
 }> {
-  // Check if the token was provided
-  if (!appCheckToken) {
-    console.error("Server Action Error: No App Check token provided.");
-    return { error: "Client validation failed." };
-  }
   try {
     const url = process.env.GENERATE_VERSE_URL;
     if (!url) {
@@ -24,7 +18,6 @@ export async function generateVerseAction(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-firebase-appcheck": appCheckToken,
       },
       body: JSON.stringify({ translation }),
       cache: "no-store",

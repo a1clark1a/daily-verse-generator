@@ -29,37 +29,12 @@ const db = admin.firestore();
 // Initialize CORS middleware
 const corsHandler = cors({ origin: true });
 
-// Initialize App Check
-const appCheck = admin.appCheck();
-
 // Helper function to get a random item
 const getRandomItem = <T>(arr: T[]): T | undefined => {
   if (!arr || arr.length === 0) return undefined;
   return arr[Math.floor(Math.random() * arr.length)];
 };
 
-// Helper function for App Check
-/**
- * Verifies the App Check token from an incoming request.
- * Throws an error if verification fails.
- * @param {functions.https.Request} req The incoming request object.
- */
-const verifyAppCheck = async (req: functions.https.Request) => {
-  const appCheckToken = req.headers["x-firebase-appcheck"];
-
-  if (!appCheckToken) {
-    functions.logger.warn("App Check token not found.");
-    throw new Error("Unauthorized: App Check token not found");
-  }
-
-  try {
-    await appCheck.verifyToken(appCheckToken as string);
-    functions.logger.info("App Check token verified.");
-  } catch (error) {
-    functions.logger.error("App Check token verification failed:", error);
-    throw new Error("Unauthorized: Invalid App Check Token.");
-  }
-};
 //Rate Limiting Helper
 /**
  * Checks and updates IP-based rate limits.
@@ -240,9 +215,6 @@ export const generateVerseImage = onRequest(
   (req, res) => {
     corsHandler(req, res, async () => {
       try {
-        // Verify App Check token
-        await verifyAppCheck(req);
-
         // Rate Limit
         await verifyRateLimit(req.ip);
 
@@ -360,9 +332,7 @@ export const generateVerseImage = onRequest(
       } catch (error: any) {
         // --- Unified Error Handling ---
         functions.logger.error("Function failed:", error.message);
-        if (error.message.startsWith("Unauthorized:")) {
-          res.status(401).json({ error: "Unauthorized" });
-        } else if (error.message.startsWith("Rate limit exceeded")) {
+        if (error.message.startsWith("Rate limit exceeded")) {
           res.status(429).json({ error: "Too Many Requests" });
         } else {
           res.status(500).json({ error: "Failed to generate verse image" });
@@ -398,9 +368,7 @@ export const getVerseCount = onRequest(
       } catch (error: any) {
         // --- Unified Error Handling ---
         functions.logger.error("Function failed:", error.message);
-        if (error.message.startsWith("Unauthorized:")) {
-          res.status(401).json({ error: "Unauthorized" });
-        } else if (error.message.startsWith("Rate limit exceeded")) {
+        if (error.message.startsWith("Rate limit exceeded")) {
           res.status(429).json({ error: "Too Many Requests" });
         } else {
           res.status(500).json({ error: "Failed to get verse count" });

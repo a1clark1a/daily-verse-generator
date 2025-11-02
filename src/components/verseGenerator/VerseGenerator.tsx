@@ -16,9 +16,6 @@ import {
 } from "@chakra-ui/react";
 import { FaFacebook, FaTwitter, FaInstagram, FaShare } from "react-icons/fa";
 
-import { appCheckInstance } from "@/lib/firebase";
-import { getToken } from "@firebase/app-check";
-
 import {
   GenerateVerseButton,
   GenerateVerseButtonText,
@@ -39,38 +36,8 @@ export function VerseGenerator() {
     setImageUrl(null);
     setIsOpen(true);
 
-    let appCheckToken: string | undefined = undefined;
-    if (!appCheckInstance) {
-      console.error(
-        "App Check instance is not available. Did initialization fail?"
-      );
-      setError("App validation service failed to load. Please refresh.");
-      setIsOpen(false);
-      return;
-    }
-
-    try {
-      // Get the token using the imported instance
-      const tokenResponse = await getToken(
-        appCheckInstance,
-        /* forceRefresh= */ false
-      );
-      appCheckToken = tokenResponse.token;
-    } catch (err) {
-      console.error("Error getting App Check token:", err);
-      setError("Could not verify app. Please try again.");
-      setIsOpen(false);
-      return;
-    }
-
-    if (!appCheckToken) {
-      setError("Could not get validation token. Please refresh.");
-      setIsOpen(false);
-      return;
-    }
-
     startTransition(async () => {
-      const result = await generateVerseAction(appCheckToken, translation);
+      const result = await generateVerseAction(translation);
       if (result.error) {
         setError(result.error);
       } else if (result.imageUrl) {
