@@ -4,12 +4,11 @@ import {
   Box,
   Container,
   Flex,
-  IconButton,
   Text,
   HStack,
   createListCollection,
 } from "@chakra-ui/react";
-import { HiBookOpen } from "react-icons/hi";
+import Image from "next/image";
 import { ColorModeButton } from "@/components/ui/color-mode";
 import { useTranslation } from "@/contexts/TranslationContext";
 import {
@@ -59,17 +58,22 @@ export function Header() {
         <Flex justify="space-between" align="center">
           {/* Left: Bible Icon + Translation Dropdown */}
           <HStack gap={2} flex={{ base: "0", md: "1" }}>
-            <IconButton
-              aria-label="Bible"
-              variant="ghost"
-              size="lg"
-              color={{
-                _light: "tranquilTeal.600",
-                _dark: "tranquilTeal.200",
-              }}
+            <Box
+              width="40px"
+              height="40px"
+              position="relative"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
             >
-              <HiBookOpen size={24} />
-            </IconButton>
+              <Image
+                src="/favicon-72x72.png"
+                alt="Bible"
+                width={72}
+                height={72}
+                style={{ objectFit: "contain" }}
+              />
+            </Box>
             <SelectRoot
               collection={translations}
               value={[translation]}
