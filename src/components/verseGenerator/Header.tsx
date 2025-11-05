@@ -41,13 +41,13 @@ export function Header() {
       left={0}
       right={0}
       bg={{
-        _light: "rgba(255, 255, 255, 0.85)",
-        _dark: "rgba(10, 77, 78, 0.5)",
+        _light: "tranquilCream.400",
+        _dark: "tranquilTeal.900",
       }}
       backdropFilter="blur(10px)"
       borderBottom="1px solid"
       borderColor={{
-        _light: "tranquilTeal.200",
+        _light: "tranquilCream.500",
         _dark: "tranquilTeal.700",
       }}
       zIndex={1000}
@@ -81,12 +81,32 @@ export function Header() {
               size="sm"
               width="100px"
             >
-              <SelectTrigger>
+              <SelectTrigger
+                color={{
+                  _light: "white",
+                  _dark: "tranquilCream.300",
+                }}
+                borderColor={{
+                  _light: "white",
+                  _dark: "tranquilCream.300",
+                }}
+              >
                 <SelectValueText placeholder="Select translation" />
               </SelectTrigger>
               <SelectContent>
                 {translations.items.map((t) => (
-                  <SelectItem key={t.value} item={t}>
+                  <SelectItem
+                    key={t.value}
+                    item={t}
+                    bg={{
+                      _light: "tranquilCream.400",
+                      _dark: "rgba(10, 77, 78, 0.5)",
+                    }}
+                    color={{
+                      _light: "white",
+                      _dark: "tranquilCream.300",
+                    }}
+                  >
                     {t.label}
                   </SelectItem>
                 ))}
@@ -102,7 +122,7 @@ export function Header() {
             fontSize={{ base: "lg", md: "2xl" }}
             fontWeight="bold"
             color={{
-              _light: "tranquilNavy.700",
+              _light: "white",
               _dark: "tranquilCream.100",
             }}
             fontFamily="Permanent Marker, cursive"
@@ -122,6 +142,12 @@ export function Header() {
               color={{
                 _light: "tranquilGold.500",
                 _dark: "tranquilGold.300",
+              }}
+              _hover={{
+                bg: {
+                  _light: "tranquilCream.500",
+                  _dark: "whiteAlpha.200",
+                },
               }}
             />
           </Box>

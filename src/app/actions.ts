@@ -53,3 +53,55 @@ export async function getInitialVerseCount() {
     return 0;
   }
 }
+
+// Function to get daily image from Unsplash
+export async function getDailyImage() {
+  try {
+    // Calculate day of year for deterministic image selection
+    const today = new Date();
+    const dayOfYear = Math.floor(
+      (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
+    );
+
+    const accessKey = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
+
+    if (!accessKey) {
+      console.warn("Unsplash API key not found, using fallback image");
+      return null;
+    }
+
+    // Fetch a list of photos and deterministically select one based on the day
+    const response = await fetch(
+      `https://api.unsplash.com/search/photos?query=nature peaceful landscape&orientation=landscape&per_page=30&client_id=${accessKey}`,
+      {
+        next: { revalidate: 86400 }, // Cache for 24 hours
+      }
+    );
+
+    if (!response.ok) {
+      console.error("Failed to fetch from Unsplash");
+      return null;
+    }
+
+    const data = await response.json();
+
+    if (!data.results || data.results.length === 0) {
+      console.error("No images found from Unsplash");
+      return null;
+    }
+
+    // Use day of year to deterministically pick an image
+    const imageIndex = dayOfYear % data.results.length;
+    const photo = data.results[imageIndex];
+
+    return {
+      url: photo.urls.regular,
+      alt: photo.alt_description || "Daily inspirational image",
+      photographer: photo.user.name,
+      photographerUrl: photo.user.links.html,
+    };
+  } catch (error) {
+    console.error("Error fetching daily image:", error);
+    return null;
+  }
+}

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Box,
   Button,
   ButtonProps,
   Center,
@@ -9,23 +8,7 @@ import {
   ContainerProps,
   Text,
   TextProps,
-  type BoxProps,
 } from "@chakra-ui/react";
-
-export const GradientBackgroundCon = (props: BoxProps) => {
-  return (
-    <Box
-      minH="100vh"
-      {...props}
-      bgGradient={{
-        _light: "linear(135deg, tranquilCream.50 0%, tranquilSky.100 100%)",
-        _dark: "linear(135deg, tranquilNavy.700 0%, tranquilTeal.800 100%)",
-      }}
-      bgSize="200% 200%"
-      animation="gradient 15s ease infinite"
-    />
-  );
-};
 
 export const FooterContainer = (props: ContainerProps) => {
   return (
@@ -41,79 +24,14 @@ export const FooterContainer = (props: ContainerProps) => {
         bottom={0}
         color={"white"}
         zIndex={9999999}
-        bg="rgba(0, 0, 0, 0.2)"
+        bg={{
+          _light: "tranquilCream.400",
+          _dark: "tranquilTeal.900",
+        }}
         backdropFilter="blur(10px)"
         style={{
           fontFamily: "Source Code Pro, monospace",
         }}
-        {...props}
-      />
-    </Center>
-  );
-};
-
-export const VerseGeneratorCon = (props: ContainerProps) => {
-  return (
-    <Container
-      minH={350}
-      minW={350}
-      height={"70vh"}
-      width={"70vw"}
-      zIndex={2}
-      style={{
-        background: "rgba( 0, 0, 70, 0.3 )",
-        boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.37 )",
-        backdropFilter: "blur( 20px )",
-        borderRadius: "10px",
-        border: " 1px solid rgba( 255, 255, 255, 0.18 )",
-      }}
-      {...props}
-    />
-  );
-};
-
-export const VerseGeneratorInnerCon = (props: ContainerProps) => {
-  return (
-    <Container
-      style={{
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%,-50%)",
-        position: "absolute",
-        width: "100%",
-      }}
-      {...props}
-    />
-  );
-};
-
-export const VerseGeneratorTitle = (props: BoxProps) => {
-  return (
-    <Box
-      fontFamily={"Permanent Marker, cursive"}
-      fontSize={50}
-      textAlign={"center"}
-      color={"white"}
-      padding={"0px 20px 0px 20px"}
-      position={"relative"}
-      mdDown={{ fontSize: 30 }}
-      {...props}
-    />
-  );
-};
-
-export const VerseGeneratorSubtitle = (props: BoxProps) => {
-  return (
-    <Center>
-      <Box
-        color={"white"}
-        fontFamily={"Caveat, cursive"}
-        fontSize={35}
-        position={"relative"}
-        width={"100%"}
-        textAlign={"center"}
-        padding={"0px 20px 0px 20px"}
-        mdDown={{ fontSize: 25 }}
         {...props}
       />
     </Center>
@@ -128,12 +46,16 @@ export const GenerateVerseButton = (props: ButtonProps) => {
       position={"relative"}
       transition={"0.2s all ease-in-out"}
       transformOrigin={"center"}
-      bg={{
-        _light: "linear-gradient(135deg, purity.400 0%, calm.400 100%)",
+      backgroundImage={{
+        _light:
+          "linear-gradient(135deg, {colors.tranquilCream.400} 0%, {colors.tranquilSky.50} 100%)",
         _dark:
           "linear-gradient(135deg, {colors.tranquilNavy.400} 0%, {colors.tranquilTeal.800} 100%)",
       }}
-      boxShadow={" 0 8px 32px 0 rgba( 31, 38, 135, 0.37 )"}
+      boxShadow={{
+        _light: "",
+        _dark: " 0 8px 32px 0 rgba( 31, 38, 135, 0.37 )",
+      }}
       backdropFilter={"blur( 20px )"}
       borderRadius={10}
       border={{
@@ -141,18 +63,20 @@ export const GenerateVerseButton = (props: ButtonProps) => {
         _dark: "1px solid rgba( 255, 255, 255, 0.18 )",
       }}
       borderColor={{
-        _light: "purity.500",
+        _light: "transparent",
         _dark: "transparent",
       }}
       _hover={{
         transform: "scale(1.1)",
         boxShadow: {
-          _light: "0 12px 40px 0 rgba(44, 122, 123, 0.6)",
+          _light: "0 12px 40px 0 rgba(240, 215, 170, 0.5)",
           _dark: "0 12px 40px 0 rgba(79, 209, 197, 0.5)",
         },
-        bg: {
-          _light: "linear-gradient(135deg, purity.500 0%, calm.500 100%)",
-          _dark: "linear(135deg, tranquilTeal.600 0%, tranquilTeal.800 100%)",
+        backgroundImage: {
+          _light:
+            "linear-gradient(135deg, {colors.tranquilSky.50} 0%, {colors.tranquilCream.400} 100%)",
+          _dark:
+            "linear-gradient(135deg, {colors.tranquilTeal.600} 0%, {colors.tranquilTeal.800} 100%)",
         },
       }}
       style={{}}
@@ -166,7 +90,7 @@ export const GenerateVerseButtonText = (props: TextProps) => {
     <Text
       color={{
         _light: "white",
-        _dark: "white",
+        _dark: "tranquilCream.100",
       }}
       fontFamily={"Caveat, cursive"}
       fontSize={35}

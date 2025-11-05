@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Permanent_Marker, Caveat } from "next/font/google";
 import { Provider } from "@/components/ui/provider";
 import { GoogleAnalytics } from "@/components/googleAnalytics/GoogleAnalytics";
@@ -24,17 +24,20 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#0A4D4E",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  // Also supported but less commonly used
+  // interactiveWidget: 'resizes-visual',
+};
+
 export const metadata: Metadata = {
   title: "Daily Verse - Bible Verse Generator",
   description: "Generate and share daily inspirational Bible verses",
   manifest: "/manifest.json",
-  themeColor: "#0A4D4E",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -42,9 +45,7 @@ export const metadata: Metadata = {
       { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
       { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
     ],
-    apple: [
-      { url: "/180x180.png", sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: "/180x180.png", sizes: "180x180", type: "image/png" }],
   },
   appleWebApp: {
     capable: true,
