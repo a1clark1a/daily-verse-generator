@@ -6,6 +6,7 @@ A beautiful, tranquil web application that generates inspirational Bible verses 
 
 ## Features
 
+- **Daily Inspirational Banner**: Beautiful nature images that change daily, powered by Unsplash API
 - **Random Bible Verse Generation**: Fetches random Bible verses from multiple translations
 - **Beautiful Image Generation**: Creates aesthetically pleasing verse cards with:
   - Dynamic dark gradient backgrounds
@@ -39,7 +40,8 @@ A beautiful, tranquil web application that generates inspirational Bible verses 
 - **UI Library**: [Chakra UI v3](https://chakra-ui.com/)
 - **Styling**: Custom theme with semantic tokens and animations
 - **State Management**: React Context API
-- **Image Handling**: Next.js Image optimization
+- **Image Handling**: Next.js Image optimization with remote pattern support for Unsplash
+- **External APIs**: Unsplash API for daily banner images
 - **Icons**: React Icons (FontAwesome, HeroIcons)
 - **TypeScript**: Full type safety throughout the application
 
@@ -68,14 +70,22 @@ A beautiful, tranquil web application that generates inspirational Bible verses 
 ### System Overview
 
 ```
-┌─────────────────┐
-│   Next.js App   │
-│   (Frontend)    │
-└────────┬────────┘
-         │
-         │ Server Actions
-         │
-         ▼
+┌─────────────────────────────┐
+│      Next.js App            │
+│      (Frontend)             │
+└──────┬──────────────┬───────┘
+       │              │
+       │              │ Daily Banner
+       │              │ (Server Side)
+       │              ▼
+       │         ┌──────────┐
+       │         │ Unsplash │
+       │         │   API    │
+       │         └──────────┘
+       │
+       │ Server Actions
+       │
+       ▼
 ┌─────────────────────────┐
 │  Firebase Cloud         │
 │  Functions (Backend)    │
@@ -106,6 +116,14 @@ A beautiful, tranquil web application that generates inspirational Bible verses 
 
 **Data Flow:**
 
+**Daily Banner:**
+1. Page loads (server-side)
+2. `getDailyImage()` action fetches image from Unsplash API
+3. Uses day of year to deterministically select same image for 24 hours
+4. Falls back to static image if API fails
+5. Image is cached for 24 hours with Next.js revalidation
+
+**Verse Generation:**
 1. User clicks "Generate Verse" button
 2. `VerseGenerator.tsx` calls `generateVerseAction` server action
 3. Server action sends POST request to Firebase Cloud Function
@@ -185,6 +203,41 @@ Firestore Collections:
   }
   ```
 
+**Unsplash API**
+
+- **Provider**: [Unsplash](https://unsplash.com/developers)
+- **Endpoint**: `https://api.unsplash.com/search/photos`
+- **Purpose**: Daily rotating banner images with nature/peaceful themes
+- **Features**:
+  - Deterministic daily image selection using day of year
+  - 24-hour server-side caching with Next.js revalidation
+  - Automatic photographer attribution
+  - Fallback to static image if API unavailable
+- **Query Parameters**:
+  - `query=nature peaceful landscape` - Search terms
+  - `orientation=landscape` - Image orientation
+  - `per_page=30` - Number of results to fetch
+  - `client_id={access_key}` - API authentication
+- **Response Format**:
+  ```json
+  {
+    "results": [
+      {
+        "urls": {
+          "regular": "https://images.unsplash.com/photo-..."
+        },
+        "alt_description": "Mountain landscape",
+        "user": {
+          "name": "Photographer Name",
+          "links": {
+            "html": "https://unsplash.com/@photographer"
+          }
+        }
+      }
+    ]
+  }
+  ```
+
 ### Internal API Endpoints
 
 **Generate Verse Image**
@@ -237,6 +290,9 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# Unsplash API - Get your free access key at https://unsplash.com/developers
+NEXT_PUBLIC_UNSPLASH_ACCESS_KEY=your-unsplash-access-key
 ```
 
 ### Backend (Firebase Functions)
@@ -278,13 +334,21 @@ Firebase Functions automatically inherit project configuration. No additional en
    # Edit .env.local with your Firebase configuration
    ```
 
-4. **Run development server**
+4. **Get Unsplash API Key** (Optional - for daily banner images)
+
+   - Go to [Unsplash Developers](https://unsplash.com/developers)
+   - Create a free account and register a new application
+   - Copy your Access Key
+   - Add it to `.env.local` as `NEXT_PUBLIC_UNSPLASH_ACCESS_KEY`
+   - **Note**: The app will use a static fallback image if this key is not provided
+
+5. **Run development server**
 
    ```bash
    npm run dev
    ```
 
-5. **Open browser**
+6. **Open browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ### Firebase Functions Setup
@@ -387,13 +451,11 @@ npm run logs
 daily-verse-generator/
 ├── src/
 │   ├── app/
-│   │   ├── actions.ts              # Server actions
+│   │   ├── actions.ts              # Server actions (includes Unsplash)
 │   │   ├── layout.tsx              # Root layout
 │   │   ├── page.tsx                # Home page
-│   │   └── theme.tsx               # Chakra UI theme
+│   │   └── theme.tsx               # Chakra UI theme with keyframes
 │   ├── components/
-│   │   ├── animations/
-│   │   │   └── animationStyles.tsx
 │   │   ├── googleAnalytics/
 │   │   │   └── GoogleAnalytics.tsx
 │   │   ├── ui/                     # Chakra UI components
@@ -407,6 +469,7 @@ daily-verse-generator/
 │   │   ├── firebase.ts             # Firebase initialization
 │   │   └── types/
 │   └── assets/
+│       ├── tranquil.png            # Fallback banner image
 │       └── EBGarmond-regular.ttf   # Font for verse images
 ├── functions/
 │   ├── src/
@@ -417,7 +480,7 @@ daily-verse-generator/
 │   └── tsconfig.json
 ├── .env.local                       # Environment variables
 ├── firebase.json                    # Firebase config
-├── next.config.ts                   # Next.js config
+├── next.config.ts                   # Next.js config (includes Unsplash domain)
 ├── package.json
 └── tsconfig.json
 ```
@@ -501,6 +564,7 @@ This project is developed by [Clark Perfecto](https://acperfecto.vercel.app/).
 ## Acknowledgments
 
 - Bible verses provided by [Bible-API.com](https://bible-api.com)
+- Daily banner images provided by [Unsplash](https://unsplash.com)
 - Font: EB Garamond
 - Icons: FontAwesome Free
 - UI Components: Chakra UI v3

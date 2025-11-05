@@ -15,13 +15,14 @@ import { TranslationProvider } from "@/contexts/TranslationContext";
 
 import { FooterContainer } from "@/components/verseGenerator/VerseGeneratorElements";
 
-import { getInitialVerseCount } from "@/app/actions";
+import { getInitialVerseCount, getDailyImage } from "@/app/actions";
 
 // images
 import bannerImage from "@/assets/tranquil.png";
 
 export default async function Home() {
   const initialCount = await getInitialVerseCount();
+  const dailyImage = await getDailyImage();
 
   return (
     <TranslationProvider>
@@ -46,8 +47,8 @@ export default async function Home() {
             position="relative"
           >
             <Image
-              src={bannerImage}
-              alt="Tranquil Banner"
+              src={dailyImage?.url || bannerImage}
+              alt={dailyImage?.alt || "Tranquil Banner"}
               fill
               style={{
                 objectFit: "cover",
@@ -56,6 +57,31 @@ export default async function Home() {
               priority
             />
           </Box>
+
+          {/* Photo Credit */}
+          {dailyImage && (
+            <Text
+              fontSize="xs"
+              color={{ _light: "tranquilNavy.600", _dark: "tranquilCream.300" }}
+            >
+              Photo by{" "}
+              <ChakraLink
+                href={dailyImage.photographerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                textDecoration="underline"
+                _hover={{
+                  color: {
+                    _light: "tranquilTeal.500",
+                    _dark: "tranquilTeal.300",
+                  },
+                }}
+              >
+                {dailyImage.photographer}
+              </ChakraLink>{" "}
+              on Unsplash
+            </Text>
+          )}
 
           {/* Generate Button */}
           <Box mt={4}>
@@ -95,14 +121,10 @@ export default async function Home() {
               target="_blank"
               rel="noreferrer"
               textDecoration="underline"
-              color={{
-                _light: "white",
-                _dark: "tranquilCream.100",
-              }}
               _hover={{
                 color: {
-                  _light: "tranquilTeal.200",
-                  _dark: "tranquilCream.200",
+                  _light: "tranquilTeal.500",
+                  _dark: "tranquilTeal.300",
                 },
               }}
             >
@@ -123,14 +145,10 @@ export default async function Home() {
               target="_blank"
               rel="noreferrer"
               textDecoration="underline"
-              color={{
-                _light: "white",
-                _dark: "tranquilCream.100",
-              }}
               _hover={{
                 color: {
-                  _light: "tranquilTeal.200",
-                  _dark: "tranquilCream.200",
+                  _light: "tranquilTeal.500",
+                  _dark: "tranquilTeal.300",
                 },
               }}
             >
