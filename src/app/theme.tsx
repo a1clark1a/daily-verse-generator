@@ -1,12 +1,19 @@
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
 
-import animationStyles from "@/components/animations/animationStyles";
-
 const config = defineConfig({
   globalCss: {
     "html, body": {
       margin: 0,
       padding: 0,
+      backgroundImage: {
+        _light:
+          "linear-gradient(135deg, {colors.tranquilCream.50} 0%, {colors.tranquilSky.100} 100%)",
+        _dark:
+          "linear-gradient(135deg, {colors.tranquilNavy.700} 0%, {colors.tranquilTeal.800} 100%)",
+      },
+      backgroundSize: "200% 200%",
+      animation: "gradient 15s ease infinite",
+      minHeight: "100vh",
     },
   },
   theme: {
@@ -17,7 +24,6 @@ const config = defineConfig({
         "100%": { backgroundPosition: "0% 50%" },
       },
     },
-    animationStyles,
     tokens: {
       colors: {
         // Tranquil theme - inspired by mountain lake at sunset
@@ -90,56 +96,6 @@ const config = defineConfig({
       fonts: {
         heading: { value: "var(--font-permanent-marker)" },
         body: { value: "var(--font-permanent-marker)" },
-      },
-    },
-    semanticTokens: {
-      colors: {
-        bg: {
-          DEFAULT: {
-            value: {
-              // Light: Soft cream to calm sky blue gradient (like the horizon)
-              _light: "linear-gradient(135deg, {colors.tranquilCream.50} 0%, {colors.tranquilSky.100} 100%)",
-              // Dark: Deep navy to dark teal gradient (like the mountain shadows to water)
-              _dark: "linear-gradient(135deg, {colors.tranquilNavy.700} 0%, {colors.tranquilTeal.800} 100%)",
-            },
-          },
-        },
-        surface: {
-          DEFAULT: {
-            value: {
-              _light: "rgba(255, 255, 255, 0.85)",
-              _dark: "rgba(10, 77, 78, 0.4)",
-            },
-          },
-        },
-        text: {
-          primary: {
-            value: {
-              _light: "{colors.tranquilNavy.700}",
-              _dark: "{colors.tranquilCream.50}",
-            },
-          },
-          secondary: {
-            value: {
-              _light: "{colors.tranquilNavy.500}",
-              _dark: "{colors.tranquilCream.200}",
-            },
-          },
-        },
-        accent: {
-          primary: {
-            value: {
-              _light: "{colors.tranquilTeal.500}",
-              _dark: "{colors.tranquilTeal.300}",
-            },
-          },
-          secondary: {
-            value: {
-              _light: "{colors.tranquilGold.500}",
-              _dark: "{colors.tranquilGold.300}",
-            },
-          },
-        },
       },
     },
   },
