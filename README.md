@@ -1,6 +1,6 @@
 # Daily Verse Generator
 
-A beautiful, tranquil web application that generates inspirational Bible verses as shareable images. Built with Next.js and Firebase, this app creates stunning verse cards with dynamic gradients, custom fonts, and decorative icons.
+A beautiful, tranquil web application that generates inspirational Bible verses as shareable images. Built with Next.js and Firebase, this app creates stunning verse cards with gradient backgrounds, custom fonts, and decorative icons.
 
 ![Daily Verse Banner](./src/assets/tranquil.png)
 
@@ -9,7 +9,7 @@ A beautiful, tranquil web application that generates inspirational Bible verses 
 - **Daily Inspirational Banner**: Beautiful nature images that change daily, powered by Unsplash API
 - **Random Bible Verse Generation**: Fetches random Bible verses from multiple translations
 - **Beautiful Image Generation**: Creates aesthetically pleasing verse cards with:
-  - Dynamic dark gradient backgrounds
+  - Dark gradient backgrounds
   - Custom EB Garamond font rendering
   - Decorative FontAwesome icons
   - Responsive text wrapping
@@ -38,8 +38,9 @@ A beautiful, tranquil web application that generates inspirational Bible verses 
 
 - **Framework**: [Next.js 15](https://nextjs.org/) (React 19)
 - **UI Library**: [Chakra UI v3](https://chakra-ui.com/)
-- **Styling**: Custom theme with semantic tokens and animations
-- **State Management**: React Context API
+- **Styling**: Custom Chakra UI theme with tranquil color palette and light/dark mode support
+- **Fonts**: Google Fonts (Permanent Marker, Caveat) via Next.js font optimization
+- **State Management**: React Context API for Bible translation selection
 - **Image Handling**: Next.js Image optimization with remote pattern support for Unsplash
 - **External APIs**: Unsplash API for daily banner images
 - **Icons**: React Icons (FontAwesome, HeroIcons)
@@ -106,17 +107,20 @@ A beautiful, tranquil web application that generates inspirational Bible verses 
 
 **Component Structure:**
 
-- `app/page.tsx` - Main page with server-side rendering for verse count
-- `app/layout.tsx` - Root layout with providers and metadata
-- `app/actions.ts` - Server actions for API communication
+- `app/page.tsx` - Main page with SSR for verse count and daily banner image
+- `app/layout.tsx` - Root layout with font configuration, providers, and metadata
+- `app/actions.ts` - Server actions (verse generation, verse count, Unsplash API)
+- `app/theme.tsx` - Chakra UI theme with color tokens and background gradients
+- `app/globals.css` - Global CSS and Google Font imports
 - `contexts/TranslationContext.tsx` - Global state for Bible translation selection
-- `components/verseGenerator/` - Core verse generation components
-- `components/ui/` - Reusable Chakra UI components
-- `app/theme.tsx` - Custom Chakra UI theme with tranquil color palette
+- `components/verseGenerator/` - Verse generator UI (Header, Generator, Elements)
+- `components/googleAnalytics/` - Firebase Analytics integration
+- `components/ui/` - Reusable UI components (color-mode, select, toaster, etc.)
 
 **Data Flow:**
 
 **Daily Banner:**
+
 1. Page loads (server-side)
 2. `getDailyImage()` action fetches image from Unsplash API
 3. Uses day of year to deterministically select same image for 24 hours
@@ -124,6 +128,7 @@ A beautiful, tranquil web application that generates inspirational Bible verses 
 5. Image is cached for 24 hours with Next.js revalidation
 
 **Verse Generation:**
+
 1. User clicks "Generate Verse" button
 2. `VerseGenerator.tsx` calls `generateVerseAction` server action
 3. Server action sends POST request to Firebase Cloud Function
@@ -335,7 +340,6 @@ Firebase Functions automatically inherit project configuration. No additional en
    ```
 
 4. **Get Unsplash API Key** (Optional - for daily banner images)
-
    - Go to [Unsplash Developers](https://unsplash.com/developers)
    - Create a free account and register a new application
    - Copy your Access Key
