@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Permanent_Marker, Caveat } from "next/font/google";
+import { Geist, Geist_Mono, Permanent_Marker, Caveat, Source_Code_Pro } from "next/font/google";
 import { Provider } from "@/components/ui/provider";
 import { GoogleAnalytics } from "@/components/googleAnalytics/GoogleAnalytics";
 
@@ -12,6 +12,12 @@ const permanentMarker = Permanent_Marker({
 const caveat = Caveat({
   subsets: ["latin"],
   variable: "--font-caveat",
+});
+
+const sourceCodePro = Source_Code_Pro({
+  subsets: ["latin"],
+  weight: ["200"],
+  variable: "--font-source-code-pro",
 });
 
 const geistSans = Geist({
@@ -76,7 +82,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${permanentMarker.variable} ${caveat.variable}`}
+        className={`${geistSans.variable} ${geistMono.variable} ${permanentMarker.variable} ${caveat.variable} ${sourceCodePro.variable}`}
         suppressHydrationWarning
       >
         <Provider>{children}</Provider>

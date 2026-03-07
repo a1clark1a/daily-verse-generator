@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import Image from "next/image";
 import { ColorModeButton } from "@/components/ui/color-mode";
-import { useTranslation } from "@/contexts/TranslationContext";
+import { useTranslation, type Translation } from "@/contexts/TranslationContext";
 import {
   SelectContent,
   SelectItem,
@@ -19,23 +19,24 @@ import {
   SelectValueText,
 } from "@/components/ui/select";
 
+const translations = createListCollection({
+  items: [
+    { value: "kjv", label: "KJV" },
+    { value: "web", label: "WEB" },
+    { value: "asv", label: "ASV" },
+    { value: "bbe", label: "BBE" },
+    { value: "darby", label: "Darby" },
+    { value: "ylt", label: "YLT" },
+    { value: "oeb-us", label: "OEB-US" },
+  ],
+});
+
 export function Header() {
   const { translation, setTranslation } = useTranslation();
 
-  const translations = createListCollection({
-    items: [
-      { value: "kjv", label: "KJV" },
-      { value: "web", label: "WEB" },
-      { value: "asv", label: "ASV" },
-      { value: "bbe", label: "BBE" },
-      { value: "darby", label: "Darby" },
-      { value: "ylt", label: "YLT" },
-      { value: "oeb-us", label: "OEB-US" },
-    ],
-  });
-
   return (
     <Box
+      as="header"
       position="fixed"
       top={0}
       left={0}
@@ -77,7 +78,7 @@ export function Header() {
             <SelectRoot
               collection={translations}
               value={[translation]}
-              onValueChange={(e) => setTranslation(e.value[0])}
+              onValueChange={(e) => setTranslation(e.value[0] as Translation)}
               size="sm"
               width="100px"
             >

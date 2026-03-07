@@ -5,6 +5,7 @@ import {
   Icon,
   Box,
   Container,
+  Flex,
   VStack,
 } from "@chakra-ui/react";
 import { HiHeart } from "react-icons/hi";
@@ -25,12 +26,29 @@ export default async function Home() {
   const dailyImage = await getDailyImage();
 
   return (
+    <Flex direction="column" minH="100vh">
     <TranslationProvider>
+      {/* Skip Navigation */}
+      <ChakraLink
+        href="#main-content"
+        position="absolute"
+        top="-40px"
+        left="0"
+        bg="tranquilTeal.700"
+        color="white"
+        px={4}
+        py={2}
+        zIndex={1001}
+        _focus={{ top: "0" }}
+      >
+        Skip to main content
+      </ChakraLink>
+
       {/* Header */}
       <Header />
 
       {/* Main Content */}
-      <Container maxW="7xl" pt="100px" pb="200px">
+      <Container as="main" id="main-content" maxW="7xl" pt="100px" pb={8} flex="1">
         <VStack gap={8} align="center">
           {/* Banner Image */}
           <Box
@@ -158,5 +176,6 @@ export default async function Home() {
         </VStack>
       </FooterContainer>
     </TranslationProvider>
+    </Flex>
   );
 }
