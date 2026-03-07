@@ -297,7 +297,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-XXXXXXXXXX
 
 # Unsplash API - Get your free access key at https://unsplash.com/developers
-NEXT_PUBLIC_UNSPLASH_ACCESS_KEY=your-unsplash-access-key
+UNSPLASH_ACCESS_KEY=your-unsplash-access-key
 ```
 
 ### Backend (Firebase Functions)
@@ -343,7 +343,7 @@ Firebase Functions automatically inherit project configuration. No additional en
    - Go to [Unsplash Developers](https://unsplash.com/developers)
    - Create a free account and register a new application
    - Copy your Access Key
-   - Add it to `.env.local` as `NEXT_PUBLIC_UNSPLASH_ACCESS_KEY`
+   - Add it to `.env.local` as `UNSPLASH_ACCESS_KEY`
    - **Note**: The app will use a static fallback image if this key is not provided
 
 5. **Run development server**

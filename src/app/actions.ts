@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { VALID_TRANSLATIONS, type Translation } from "@/lib/translations";
 
 export async function generateVerseAction(
   translation: string = "kjv"
@@ -9,6 +10,10 @@ export async function generateVerseAction(
   error?: string;
 }> {
   try {
+    if (!VALID_TRANSLATIONS.includes(translation as Translation)) {
+      return { error: "Invalid translation" };
+    }
+
     const url = process.env.GENERATE_VERSE_URL;
     if (!url) {
       throw new Error("Missing environment variable: GENERATE_VERSE_URL");
@@ -28,8 +33,7 @@ export async function generateVerseAction(
     }
     const data = await res.json();
 
-    // This tells Next.js to refetch the data for the page
-    // which will update the Verse count automatically.
+    revalidateTag("verse-count");
     revalidatePath("/");
     return { imageUrl: data.imageUrl };
   } catch (error) {
@@ -43,7 +47,7 @@ export async function getInitialVerseCount() {
     const url = process.env.GET_VERSE_COUNT_URL;
     if (!url) throw new Error("No count url detected");
 
-    const res = await fetch(url, { next: { revalidate: 60 } });
+    const res = await fetch(url, { next: { tags: ["verse-count"], revalidate: 60 } });
 
     if (!res.ok) return 0;
     const data = await res.json();
@@ -63,7 +67,7 @@ export async function getDailyImage() {
       (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
     );
 
-    const accessKey = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
+    const accessKey = process.env.UNSPLASH_ACCESS_KEY;
 
     if (!accessKey) {
       console.warn("Unsplash API key not found, using fallback image");

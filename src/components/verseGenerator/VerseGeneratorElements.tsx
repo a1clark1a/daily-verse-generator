@@ -14,24 +14,20 @@ export const FooterContainer = (props: ContainerProps) => {
   return (
     <Center>
       <Container
+        as="footer"
         width={"100vw"}
         minH={100}
         maxW={"100%"}
         py={6}
         textAlign={"center"}
         fontSize={15}
-        position={"absolute"}
-        bottom={0}
         color={"white"}
-        zIndex={9999999}
         bg={{
           _light: "tranquilCream.400",
           _dark: "tranquilTeal.900",
         }}
         backdropFilter="blur(10px)"
-        style={{
-          fontFamily: "Source Code Pro, monospace",
-        }}
+        fontFamily="var(--font-source-code-pro), monospace"
         {...props}
       />
     </Center>
@@ -79,7 +75,6 @@ export const GenerateVerseButton = (props: ButtonProps) => {
             "linear-gradient(135deg, {colors.tranquilTeal.600} 0%, {colors.tranquilTeal.800} 100%)",
         },
       }}
-      style={{}}
       {...props}
     />
   );

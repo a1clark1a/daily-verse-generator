@@ -1,10 +1,13 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
+import { type Translation } from "@/lib/translations";
+
+export type { Translation };
 
 type TranslationContextType = {
-  translation: string;
-  setTranslation: (translation: string) => void;
+  translation: Translation;
+  setTranslation: (translation: Translation) => void;
 };
 
 const TranslationContext = createContext<TranslationContextType | undefined>(
@@ -12,7 +15,7 @@ const TranslationContext = createContext<TranslationContextType | undefined>(
 );
 
 export function TranslationProvider({ children }: { children: ReactNode }) {
-  const [translation, setTranslation] = useState("kjv");
+  const [translation, setTranslation] = useState<Translation>("kjv");
 
   return (
     <TranslationContext.Provider value={{ translation, setTranslation }}>

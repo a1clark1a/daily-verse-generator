@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import {
   Text,
   Box,
@@ -14,7 +14,14 @@ import {
   HStack,
   IconButton,
 } from "@chakra-ui/react";
-import { FaFacebook, FaTwitter, FaInstagram, FaShare } from "react-icons/fa";
+import {
+  FaFacebook,
+  FaTwitter,
+  FaInstagram,
+  FaShare,
+  FaCopy,
+  FaCheck,
+} from "react-icons/fa";
 
 import {
   GenerateVerseButton,
@@ -29,7 +36,19 @@ export function VerseGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [supportsShare, setSupportsShare] = useState(false);
+  const [supportsClipboard, setSupportsClipboard] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied">("idle");
   const { translation } = useTranslation();
+
+  useEffect(() => {
+    setSupportsShare(typeof navigator !== "undefined" && "share" in navigator);
+    setSupportsClipboard(
+      typeof navigator !== "undefined" &&
+        "clipboard" in navigator &&
+        typeof ClipboardItem !== "undefined"
+    );
+  }, []);
 
   const handleGenerateClick = async () => {
     setError(null);
@@ -59,9 +78,9 @@ export function VerseGenerator() {
   const handleOpenChange = (details: { open: boolean }) => {
     setIsOpen(details.open);
     if (!details.open) {
-      // Reset state when closing
       setImageUrl(null);
       setError(null);
+      setCopyStatus("idle");
     }
   };
 
@@ -126,8 +145,23 @@ export function VerseGenerator() {
       }
     } catch (error) {
       console.error("Error sharing:", error);
-      // If sharing fails, fall back to download
       handleDownload();
+    }
+  };
+
+  const handleCopyImage = async () => {
+    if (!imageUrl) return;
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const pngBlob = new Blob([blob], { type: "image/png" });
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": pngBlob }),
+      ]);
+      setCopyStatus("copied");
+      setTimeout(() => setCopyStatus("idle"), 2000);
+    } catch (error) {
+      console.error("Failed to copy image:", error);
     }
   };
 
@@ -181,7 +215,7 @@ export function VerseGenerator() {
                 </Dialog.Title>
               </Dialog.Header>
 
-              <Dialog.CloseTrigger asChild></Dialog.CloseTrigger>
+              <Dialog.CloseTrigger />
 
               <Dialog.Body>
                 {/* Body section */}
@@ -244,8 +278,7 @@ export function VerseGenerator() {
                       </Text>
                       <HStack gap={3}>
                         {/* Native Share (Mobile) - Only show if Web Share API is available */}
-                        {typeof window !== "undefined" &&
-                          "share" in navigator && (
+                        {supportsShare && (
                             <IconButton
                               aria-label="Share"
                               onClick={() => handleShare("native")}
@@ -373,6 +406,33 @@ export function VerseGenerator() {
                       >
                         Download
                       </ChakraButton>
+
+                      {supportsClipboard && (
+                        <ChakraButton
+                          bg={{
+                            _light: "tranquilSky.500",
+                            _dark: "tranquilSky.600",
+                          }}
+                          color="white"
+                          _hover={{
+                            bg: {
+                              _light: "tranquilSky.600",
+                              _dark: "tranquilSky.500",
+                            },
+                          }}
+                          onClick={handleCopyImage}
+                        >
+                          {copyStatus === "copied" ? (
+                            <>
+                              <FaCheck /> Copied!
+                            </>
+                          ) : (
+                            <>
+                              <FaCopy /> Copy Image
+                            </>
+                          )}
+                        </ChakraButton>
+                      )}
 
                       <Dialog.CloseTrigger asChild>
                         <ChakraButton

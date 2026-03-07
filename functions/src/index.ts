@@ -328,7 +328,7 @@ export const generateVerseImage = onRequest(
         const imageUrl = `data:image/png;base64,${finalImageBuffer.toString("base64")}`;
 
         functions.logger.info("Successfully generated image");
-        res.status(200).json({ imageUrl: imageUrl });
+        res.status(200).json({ imageUrl });
       } catch (error: any) {
         // --- Unified Error Handling ---
         functions.logger.error("Function failed:", error.message);
