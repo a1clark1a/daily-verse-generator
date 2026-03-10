@@ -18,7 +18,7 @@ export default function Error({
             fontWeight="bold"
             color={{
               _light: "tranquilNavy.700",
-              _dark: "tranquilCream.100",
+              _dark: "tranquilSky.100",
             }}
           >
             Something went wrong
@@ -27,7 +27,7 @@ export default function Error({
             mt={2}
             color={{
               _light: "tranquilNavy.500",
-              _dark: "tranquilCream.300",
+              _dark: "tranquilSky.200",
             }}
           >
             {error.message || "An unexpected error occurred."}

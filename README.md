@@ -542,11 +542,20 @@ The backend implements IP-based rate limiting:
 
 Edit `src/app/theme.tsx` to customize the tranquil color palette:
 
-- `tranquilTeal` - Main theme color
-- `tranquilGold` - Accent color
-- `tranquilCream` - Light backgrounds
-- `tranquilSky` - Sky blue tones
-- `tranquilNavy` - Dark backgrounds
+- `tranquilTeal` - Dark mode chrome (header/footer) and light mode accent
+- `tranquilGold` - Warm accent color (icons, highlights)
+- `tranquilSky` - Text and accents (replaces former cream palette)
+- `tranquilNavy` - Light mode chrome (header/footer) and dark mode backgrounds
+
+**Theme Synergy:** Each mode's identity color serves as the other mode's accent — navy chrome in light mode uses teal accents, teal chrome in dark mode uses sky blue accents.
+
+| Element | Light Mode | Dark Mode |
+|---|---|---|
+| Header/Footer | Navy (`tranquilNavy.500`) | Teal (`tranquilTeal.900`) |
+| Body background | Sky blue → White gradient | Near-black gradient |
+| Button | Navy gradient | Teal gradient |
+| Text on chrome | White | Sky blue (`tranquilSky.100`) |
+| Link hover (chrome) | Teal (`tranquilTeal.300`) | Sky (`tranquilSky.300`) |
 
 ### Add Bible Translations
 

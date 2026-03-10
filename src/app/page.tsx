@@ -27,155 +27,175 @@ export default async function Home() {
 
   return (
     <Flex direction="column" minH="100vh">
-    <TranslationProvider>
-      {/* Skip Navigation */}
-      <ChakraLink
-        href="#main-content"
-        position="absolute"
-        top="-40px"
-        left="0"
-        bg="tranquilTeal.700"
-        color="white"
-        px={4}
-        py={2}
-        zIndex={1001}
-        _focus={{ top: "0" }}
-      >
-        Skip to main content
-      </ChakraLink>
+      <TranslationProvider>
+        {/* Skip Navigation */}
+        <ChakraLink
+          href="#main-content"
+          position="absolute"
+          top="-40px"
+          left="0"
+          bg="tranquilTeal.700"
+          color="white"
+          px={4}
+          py={2}
+          zIndex={1001}
+          _focus={{ top: "0" }}
+        >
+          Skip to main content
+        </ChakraLink>
 
-      {/* Header */}
-      <Header />
+        {/* Header */}
+        <Header />
 
-      {/* Main Content */}
-      <Container as="main" id="main-content" maxW="7xl" pt="100px" pb={8} flex="1">
-        <VStack gap={8} align="center">
-          {/* Banner Image */}
-          <Box
-            width={{ base: "90%", md: "80%", lg: "70%" }}
-            maxW="800px"
-            height={{ base: "200px", md: "300px" }}
-            borderRadius="lg"
-            overflow="hidden"
-            border="2px solid"
-            borderColor="whiteAlpha.300"
-            boxShadow="2xl"
-            bg="whiteAlpha.100"
-            backdropFilter="blur(10px)"
-            position="relative"
-          >
-            <Image
-              src={dailyImage?.url || bannerImage}
-              alt={dailyImage?.alt || "Tranquil Banner"}
-              fill
-              style={{
-                objectFit: "cover",
-                objectPosition: "center",
+        {/* Main Content */}
+        <Container
+          as="main"
+          id="main-content"
+          maxW="7xl"
+          pt="100px"
+          pb={8}
+          flex="1"
+        >
+          <VStack gap={8} align="center">
+            {/* Banner Image */}
+            <Box
+              width={{ base: "90%", md: "80%", lg: "70%" }}
+              maxW="800px"
+              height={{ base: "200px", md: "300px" }}
+              borderRadius="lg"
+              overflow="hidden"
+              border="2px solid"
+              borderColor="whiteAlpha.300"
+              boxShadow={{
+                _light: "0 25px 50px -12px rgba(44, 82, 130, 0.25)",
+                _dark: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
               }}
-              priority
-            />
-          </Box>
-
-          {/* Photo Credit */}
-          {dailyImage && (
-            <Text
-              fontSize="xs"
-              color={{ _light: "tranquilNavy.600", _dark: "tranquilCream.300" }}
+              bg="whiteAlpha.100"
+              backdropFilter="blur(10px)"
+              position="relative"
             >
-              Photo by{" "}
+              <Image
+                src={dailyImage?.url || bannerImage}
+                alt={dailyImage?.alt || "Tranquil Banner"}
+                fill
+                style={{
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+                priority
+              />
+            </Box>
+
+            {/* Photo Credit */}
+            {dailyImage && (
+              <Text
+                fontSize="xs"
+                color={{
+                  _light: "tranquilNavy.600",
+                  _dark: "tranquilSky.200",
+                }}
+              >
+                Photo by{" "}
+                <ChakraLink
+                  href={dailyImage.photographerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  textDecoration="underline"
+                  _hover={{
+                    color: {
+                      _light: "tranquilTeal.500",
+                      _dark: "tranquilTeal.300",
+                    },
+                  }}
+                >
+                  {dailyImage.photographer}
+                </ChakraLink>{" "}
+                on Unsplash
+              </Text>
+            )}
+
+            {/* Generate Button */}
+            <Box mt={4}>
+              <VerseGenerator />
+            </Box>
+          </VStack>
+        </Container>
+
+        {/* Footer */}
+        <FooterContainer>
+          <VStack gap={2}>
+            {/* Footer Text */}
+            <Text
+              fontSize="md"
+              fontWeight="semibold"
+              color={{
+                _light: "white",
+                _dark: "tranquilSky.100",
+              }}
+            >
+              Verses Generated: {initialCount}
+            </Text>
+            <Text
+              fontSize="sm"
+              fontWeight="bold"
+              color={{
+                _light: "white",
+                _dark: "tranquilSky.100",
+              }}
+            >
+              Developed with{" "}
+              <Icon color="red.500">
+                <HiHeart />
+              </Icon>{" "}
+              by{" "}
               <ChakraLink
-                href={dailyImage.photographerUrl}
+                href="https://acperfecto.vercel.app/"
                 target="_blank"
-                rel="noopener noreferrer"
-                textDecoration="underline"
+                rel="noreferrer"
+                color={{
+                  _light: "white",
+                  _dark: "tranquilSky.100",
+                }}
                 _hover={{
                   color: {
-                    _light: "tranquilTeal.500",
-                    _dark: "tranquilTeal.300",
+                    _light: "tranquilTeal.300",
+                    _dark: "tranquilSky.300",
                   },
                 }}
               >
-                {dailyImage.photographer}
+                Clark Perfecto
               </ChakraLink>{" "}
-              on Unsplash
+              @{new Date().getFullYear()}
             </Text>
-          )}
-
-          {/* Generate Button */}
-          <Box mt={4}>
-            <VerseGenerator />
-          </Box>
-        </VStack>
-      </Container>
-
-      {/* Footer */}
-      <FooterContainer>
-        <VStack gap={2}>
-          {/* Footer Text */}
-          <Text
-            fontSize="md"
-            fontWeight="semibold"
-            color={{
-              _light: "white",
-              _dark: "tranquilCream.100",
-            }}
-          >
-            Verses Generated: {initialCount}
-          </Text>
-          <Text
-            fontSize="sm"
-            color={{
-              _light: "white",
-              _dark: "tranquilCream.100",
-            }}
-          >
-            Developed with{" "}
-            <Icon color="red.500">
-              <HiHeart />
-            </Icon>{" "}
-            by{" "}
-            <ChakraLink
-              href="https://acperfecto.vercel.app/"
-              target="_blank"
-              rel="noreferrer"
-              textDecoration="underline"
-              _hover={{
-                color: {
-                  _light: "tranquilTeal.500",
-                  _dark: "tranquilTeal.300",
-                },
+            <Text
+              fontSize="xs"
+              color={{
+                _light: "white",
+                _dark: "tranquilSky.100",
               }}
             >
-              Clark Perfecto
-            </ChakraLink>{" "}
-            @{new Date().getFullYear()}
-          </Text>
-          <Text
-            fontSize="xs"
-            color={{
-              _light: "white",
-              _dark: "tranquilCream.100",
-            }}
-          >
-            <ChakraLink
-              href="https://www.flaticon.com/free-icons/bible"
-              title="bible icons"
-              target="_blank"
-              rel="noreferrer"
-              textDecoration="underline"
-              _hover={{
-                color: {
-                  _light: "tranquilTeal.500",
-                  _dark: "tranquilTeal.300",
-                },
-              }}
-            >
-              Bible icons created by Freepik - Flaticon
-            </ChakraLink>
-          </Text>
-        </VStack>
-      </FooterContainer>
-    </TranslationProvider>
+              <ChakraLink
+                href="https://www.flaticon.com/free-icons/bible"
+                title="bible icons"
+                target="_blank"
+                rel="noreferrer"
+                color={{
+                  _light: "white",
+                  _dark: "tranquilSky.100",
+                }}
+                _hover={{
+                  color: {
+                    _light: "tranquilTeal.300",
+                    _dark: "tranquilSky.300",
+                  },
+                }}
+              >
+                Bible icons created by Freepik - Flaticon
+              </ChakraLink>
+            </Text>
+          </VStack>
+        </FooterContainer>
+      </TranslationProvider>
     </Flex>
   );
 }

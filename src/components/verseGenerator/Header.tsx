@@ -42,13 +42,13 @@ export function Header() {
       left={0}
       right={0}
       bg={{
-        _light: "tranquilCream.400",
+        _light: "tranquilNavy.500",
         _dark: "tranquilTeal.900",
       }}
       backdropFilter="blur(10px)"
       borderBottom="1px solid"
       borderColor={{
-        _light: "tranquilCream.500",
+        _light: "tranquilNavy.600",
         _dark: "tranquilTeal.700",
       }}
       zIndex={1000}
@@ -85,11 +85,11 @@ export function Header() {
               <SelectTrigger
                 color={{
                   _light: "white",
-                  _dark: "tranquilCream.300",
+                  _dark: "tranquilSky.200",
                 }}
                 borderColor={{
                   _light: "white",
-                  _dark: "tranquilCream.300",
+                  _dark: "tranquilSky.200",
                 }}
               >
                 <SelectValueText placeholder="Select translation" />
@@ -100,12 +100,12 @@ export function Header() {
                     key={t.value}
                     item={t}
                     bg={{
-                      _light: "tranquilCream.400",
+                      _light: "tranquilNavy.500",
                       _dark: "rgba(10, 77, 78, 0.5)",
                     }}
                     color={{
                       _light: "white",
-                      _dark: "tranquilCream.300",
+                      _dark: "tranquilSky.200",
                     }}
                   >
                     {t.label}
@@ -124,7 +124,7 @@ export function Header() {
             fontWeight="bold"
             color={{
               _light: "white",
-              _dark: "tranquilCream.100",
+              _dark: "tranquilSky.100",
             }}
             fontFamily="Permanent Marker, cursive"
             pointerEvents={{ md: "none" }}
@@ -141,12 +141,12 @@ export function Header() {
             <ColorModeButton
               size="lg"
               color={{
-                _light: "tranquilGold.500",
-                _dark: "tranquilGold.300",
+                _light: "white",
+                _dark: "tranquilSky.200",
               }}
               _hover={{
                 bg: {
-                  _light: "tranquilCream.500",
+                  _light: "tranquilNavy.400",
                   _dark: "whiteAlpha.200",
                 },
               }}
