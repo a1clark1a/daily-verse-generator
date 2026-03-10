@@ -201,7 +201,7 @@ export function VerseGenerator() {
               borderRadius="lg"
               color={{
                 _light: "tranquilNavy.700",
-                _dark: "tranquilCream.50",
+                _dark: "tranquilSky.50",
               }}
               maxW="1000px"
             >
@@ -271,7 +271,7 @@ export function VerseGenerator() {
                         fontWeight="semibold"
                         color={{
                           _light: "tranquilNavy.600",
-                          _dark: "tranquilCream.300",
+                          _dark: "tranquilSky.200",
                         }}
                       >
                         Share your verse:
@@ -439,7 +439,7 @@ export function VerseGenerator() {
                           variant="ghost"
                           color={{
                             _light: "tranquilNavy.600",
-                            _dark: "tranquilCream.200",
+                            _dark: "tranquilSky.200",
                           }}
                           _hover={{
                             bg: {
@@ -461,7 +461,7 @@ export function VerseGenerator() {
                       variant="ghost"
                       color={{
                         _light: "tranquilNavy.600",
-                        _dark: "tranquilCream.200",
+                        _dark: "tranquilSky.200",
                       }}
                       _hover={{
                         bg: {

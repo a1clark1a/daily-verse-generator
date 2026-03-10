@@ -7,9 +7,8 @@ const config = defineConfig({
       padding: 0,
       backgroundImage: {
         _light:
-          "linear-gradient(135deg, {colors.tranquilCream.50} 0%, {colors.tranquilSky.100} 100%)",
-        _dark:
-          "linear-gradient(135deg, {colors.tranquilNavy.700} 0%, {colors.tranquilTeal.800} 100%)",
+          "linear-gradient(135deg, {colors.tranquilSky.50} 0%, white 100%)",
+        _dark: "linear-gradient(135deg, {#141414} 0%, {#0f0f0f} 100%)",
       },
       backgroundSize: "200% 200%",
       animation: "gradient 15s ease infinite",
@@ -53,20 +52,7 @@ const config = defineConfig({
           800: { value: "#7C2D12" },
           900: { value: "#5A1F0F" },
         },
-        // Soft cream palette (sky and horizon)
-        tranquilCream: {
-          50: { value: "#FFF5EB" },
-          100: { value: "#FED7AA" },
-          200: { value: "#F5DDB8" },
-          300: { value: "#F0CEAD" },
-          400: { value: "#E6C9A8" },
-          500: { value: "#D4B89C" },
-          600: { value: "#BEA48E" },
-          700: { value: "#A08A78" },
-          800: { value: "#7C6D5D" },
-          900: { value: "#5A4F43" },
-        },
-        // Calm sky blue palette
+        // Calm sky blue palette (text and accents)
         tranquilSky: {
           50: { value: "#F0F9FF" },
           100: { value: "#E0F2FE" },
