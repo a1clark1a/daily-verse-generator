@@ -74,11 +74,13 @@ export async function getDailyImage() {
       return null;
     }
 
-    // Fetch a list of photos and deterministically select one based on the day
+    // Use day of year to rotate through API pages so we get different photos each day
+    const page = (dayOfYear % 10) + 1;
+
     const response = await fetch(
-      `https://api.unsplash.com/search/photos?query=nature peaceful landscape&orientation=landscape&per_page=30&client_id=${accessKey}`,
+      `https://api.unsplash.com/search/photos?query=nature peaceful landscape&orientation=landscape&per_page=30&page=${page}&client_id=${accessKey}`,
       {
-        next: { revalidate: 86400 }, // Cache for 24 hours
+        next: { revalidate: 86400, tags: ["daily-image"] },
       }
     );
 
@@ -94,7 +96,7 @@ export async function getDailyImage() {
       return null;
     }
 
-    // Use day of year to deterministically pick an image
+    // Pick a photo from the page based on the day
     const imageIndex = dayOfYear % data.results.length;
     const photo = data.results[imageIndex];
 
