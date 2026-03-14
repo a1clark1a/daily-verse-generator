@@ -5,6 +5,8 @@ import { VALID_TRANSLATIONS, type Translation } from "@/lib/translations";
 
 export async function generateVerseAction(
   translation: string = "kjv",
+  backgroundMode: "gradient" | "image" = "gradient",
+  unsplashImageUrl: string | null = null,
 ): Promise<{
   imageUrl?: string;
   error?: string;
@@ -12,6 +14,18 @@ export async function generateVerseAction(
   try {
     if (!VALID_TRANSLATIONS.includes(translation as Translation)) {
       return { error: "Invalid translation" };
+    }
+
+    // Validate Unsplash URL to prevent SSRF
+    if (unsplashImageUrl) {
+      try {
+        const parsed = new URL(unsplashImageUrl);
+        if (parsed.hostname !== "images.unsplash.com") {
+          return { error: "Invalid image URL" };
+        }
+      } catch {
+        return { error: "Invalid image URL" };
+      }
     }
 
     const url = process.env.GENERATE_VERSE_URL;
@@ -24,7 +38,11 @@ export async function generateVerseAction(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ translation }),
+      body: JSON.stringify({
+        translation,
+        backgroundMode,
+        unsplashImageUrl: backgroundMode === "image" ? unsplashImageUrl : null,
+      }),
       cache: "no-store",
     });
 

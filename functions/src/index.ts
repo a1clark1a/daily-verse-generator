@@ -85,20 +85,25 @@ const fontPath = path.join(__dirname, "assets", "EBGaramond-Regular.ttf");
 // --- Renamed variable for caching ---
 let cachedBase64FontData: string | null = null;
 
-// Helper function to creathe verse text as an SVG buffer
+// Cache for fetched Unsplash images within the same function instance
+let cachedUnsplashImage: { url: string; buffer: Buffer } | null = null;
+
+// Helper function to create verse text as an SVG buffer
 const createTextSVG = (
   verse: number,
   chapter: number,
   book: string,
   text: string,
-  translation: string
+  translation: string,
+  backgroundMode: "gradient" | "image" = "gradient",
 ): Buffer => {
   // --- Configuration ---
   const svgWidth = 700; // Keep consistent with SVG width attribute
   const svgHeight = 400; // Keep consistent with SVG height attribute
   const titleRefY = "18%"; // Position title reference higher up (adjust %)
   const verseTextStartY = "30%"; // Start verse text block below title (adjust %)
-  const translationY = "92%"; // Position translation name near bottom (adjust %)
+  const translationY = "88%"; // Position translation name near bottom (adjust %)
+  const siteUrlY = "95%"; // Position site URL below translation
 
   const titleRefFontSize = 32; // Larger font size for the title reference
   const verseTextFontSize = 26; // Slightly smaller verse text font size
@@ -149,7 +154,7 @@ const createTextSVG = (
       (line, index) =>
         `<tspan x="50%" dy="${
           index === 0 ? 0 : `${verseTextLineHeightEm}em` // Use constant
-        }">${line.trim()}</tspan>`
+        }">${line.trim()}</tspan>`,
     )
     .join("");
 
@@ -165,42 +170,81 @@ const createTextSVG = (
           font-style: normal;
         }
         .titleRef {
-          fill: #E2E8F0; font-size: ${titleRefFontSize}px; font-weight: bold;
+          fill: #FFFFFF; font-size: ${titleRefFontSize}px; font-weight: bold;
           font-family: ${svgBase64FontData ? "'EBGaramond', serif" : "serif"};
-          text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+          ${backgroundMode === "image" ? "stroke: rgba(0,0,0,0.6); stroke-width: 2px; paint-order: stroke fill;" : ""}
         }
         .verseText {
           fill: #FFFFFF; font-size: ${verseTextFontSize}px; font-weight: normal;
           font-family: ${svgBase64FontData ? "'EBGaramond', serif" : "serif"};
-          text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+          ${backgroundMode === "image" ? "stroke: rgba(0,0,0,0.5); stroke-width: 1.5px; paint-order: stroke fill;" : ""}
         }
         .translationName {
-          fill: #A0AEC0; font-size: ${translationFontSize}px; font-style: italic;
+          fill: ${backgroundMode === "image" ? "#E2E8F0" : "#A0AEC0"}; font-size: ${translationFontSize}px; font-style: italic;
           font-family: ${svgBase64FontData ? "'EBGaramond', serif" : "serif"};
-          text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
+          ${backgroundMode === "image" ? "stroke: rgba(0,0,0,0.6); stroke-width: 1.5px; paint-order: stroke fill;" : ""}
+        }
+        .siteUrl {
+          fill: ${backgroundMode === "image" ? "#E2E8F0" : "#718096"}; font-size: 11px;
+          font-family: ${svgBase64FontData ? "'EBGaramond', serif" : "sans-serif"};
+          ${backgroundMode === "image" ? "stroke: rgba(0,0,0,0.5); stroke-width: 1px; paint-order: stroke fill;" : ""}
         }
       </style>
 
-      {/* Title Reference - Use Y constant */}
+      {/* Title Reference */}
       <text x="50%" y="${titleRefY}"
             dominant-baseline="middle" text-anchor="middle" class="titleRef">
           ${book} ${chapter}:${verse}
       </text>
 
-      {/* Verse Text Block - Use Y constant */}
+      {/* Verse Text Block */}
       <text x="0" y="${verseTextStartY}"
             dominant-baseline="hanging" text-anchor="middle" class="verseText">
           ${tspanElements}
       </text>
 
-      {/* Translation Name - Use Y constant */}
+      {/* Translation Name */}
       <text x="50%" y="${translationY}"
             dominant-baseline="middle" text-anchor="middle" class="translationName">
           (${translation})
       </text>
+
+      {/* Site URL */}
+      <text x="50%" y="${siteUrlY}"
+            dominant-baseline="middle" text-anchor="middle" class="siteUrl">
+          daily-verse-generator.vercel.app
+      </text>
     </svg>
   `;
   return Buffer.from(svg);
+};
+
+// Helper to generate a dark gradient background pipeline
+const createGradientPipeline = (): sharp.Sharp => {
+  const generateDarkHexColor = (): string => {
+    const r = Math.floor(Math.random() * 129);
+    const g = Math.floor(Math.random() * 129);
+    const b = Math.floor(Math.random() * 129);
+    const toHex = (c: number) => c.toString(16).padStart(2, "0");
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  };
+
+  const darkColor1 = generateDarkHexColor();
+  const darkColor2 = generateDarkHexColor();
+
+  const backgroundGradient = Buffer.from(
+    `<svg width="800" height="500">
+      <defs>
+        <linearGradient id="darkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${darkColor1}" />
+          <stop offset="100%" stop-color="${darkColor2}" />
+        </linearGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#darkGrad)" />
+    </svg>`,
+  );
+
+  return sharp(backgroundGradient);
 };
 
 /**
@@ -218,15 +262,36 @@ export const generateVerseImage = onRequest(
         // Rate Limit
         await verifyRateLimit(req.ip);
 
-        // Get translation from request body, default to kjv
+        // Get parameters from request body
         const requestTranslation = req.body?.translation || "kjv";
+        const backgroundMode: "gradient" | "image" =
+          req.body?.backgroundMode === "image" ? "image" : "gradient";
+        const unsplashImageUrl: string | null =
+          req.body?.unsplashImageUrl || null;
+
+        // Validate Unsplash URL to prevent SSRF
+        if (unsplashImageUrl) {
+          try {
+            const parsed = new URL(unsplashImageUrl);
+            if (parsed.hostname !== "images.unsplash.com") {
+              throw new Error("Invalid image URL hostname");
+            }
+          } catch {
+            functions.logger.warn(
+              `Rejected invalid Unsplash URL: ${unsplashImageUrl}`,
+            );
+            res.status(400).json({ error: "Invalid image URL" });
+            return;
+          }
+        }
+
         functions.logger.info(
-          `Fetching verse with translation: ${requestTranslation}...`
+          `Fetching verse with translation: ${requestTranslation}, background: ${backgroundMode}`,
         );
 
         // fetch verses with the specified translation
         const verseResponse = await axios.get(
-          `https://bible-api.com/data/${requestTranslation}/random`
+          `https://bible-api.com/data/${requestTranslation}/random`,
         );
 
         const { verse, chapter, book, text } = verseResponse.data.random_verse;
@@ -238,10 +303,11 @@ export const generateVerseImage = onRequest(
         if (randomIconDefinition) {
           const abstractIcon = icon(randomIconDefinition);
           if (abstractIcon.icon) {
-            const iconSvgString = `<svg viewBox="0 0 ${abstractIcon.icon[0]} ${abstractIcon.icon[1]}" width="80" height="80" fill="rgba(255, 255, 255, 0.88)"> <path d="${abstractIcon.icon[4]}"></path> </svg>`;
+            const iconOpacity = backgroundMode === "image" ? "0.65" : "0.88";
+            const iconSvgString = `<svg viewBox="0 0 ${abstractIcon.icon[0]} ${abstractIcon.icon[1]}" width="80" height="80" fill="rgba(255, 255, 255, ${iconOpacity})"> <path d="${abstractIcon.icon[4]}"></path> </svg>`;
             randomIconSvgBuffer = Buffer.from(iconSvgString);
             functions.logger.info(
-              `Selected icon: ${randomIconDefinition.iconName}`
+              `Selected icon: ${randomIconDefinition.iconName}`,
             );
           } else {
             functions.logger.warn("Could not get abstract icon data.");
@@ -256,40 +322,101 @@ export const generateVerseImage = onRequest(
           chapter,
           book,
           text.trim(),
-          translation
+          translation,
+          backgroundMode,
         );
 
-        // Generate Random DARK Gradient Background with Sharp
-        functions.logger.info("Generating dark gradient background...");
+        // Generate background based on mode
+        let imagePipeline: sharp.Sharp;
 
-        // Helper to generate a dark hex color
-        const generateDarkHexColor = (): string => {
-          // Limit RGB values (e.g., 0-128) to ensure darker colors
-          const r = Math.floor(Math.random() * 129); // 0 to 128
-          const g = Math.floor(Math.random() * 129); // 0 to 128
-          const b = Math.floor(Math.random() * 129); // 0 to 128
+        if (backgroundMode === "image" && unsplashImageUrl) {
+          // Fetch Unsplash image as background
+          functions.logger.info("Fetching Unsplash image for background...");
 
-          // Convert RGB to Hex
-          const toHex = (c: number) => c.toString(16).padStart(2, "0");
-          return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-        };
+          let imageBuffer: Buffer;
+          // Use cached image if same URL
+          if (
+            cachedUnsplashImage &&
+            cachedUnsplashImage.url === unsplashImageUrl
+          ) {
+            imageBuffer = cachedUnsplashImage.buffer;
+            functions.logger.info("Using cached Unsplash image");
+          } else {
+            try {
+              const imgResponse = await axios.get(unsplashImageUrl, {
+                responseType: "arraybuffer",
+                timeout: 10000,
+              });
+              imageBuffer = Buffer.from(imgResponse.data);
+              cachedUnsplashImage = {
+                url: unsplashImageUrl,
+                buffer: imageBuffer,
+              };
+            } catch (imgError) {
+              functions.logger.warn(
+                "Failed to fetch Unsplash image, falling back to gradient",
+                imgError,
+              );
+              // Fall through to gradient
+              imageBuffer = null as unknown as Buffer;
+            }
+          }
 
-        const darkColor1 = generateDarkHexColor();
-        const darkColor2 = generateDarkHexColor();
-        // Create an SVG gradient buffer
-        const backgroundGradient = Buffer.from(
-          `<svg width="800" height="500">
-            <defs>
-              <linearGradient id="darkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="${darkColor1}" />
-                <stop offset="100%" stop-color="${darkColor2}" />
-              </linearGradient>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#darkGrad)" />
-          </svg>`
-        );
-        // Start sharp pipeline with the gradient SVG
-        const imagePipeline = sharp(backgroundGradient);
+          if (imageBuffer) {
+            // Frosted glass: blur entire image, then cut a "window" showing
+            // the sharp original around the edges
+            const resizedBuffer = await sharp(imageBuffer)
+              .resize(800, 500, { fit: "cover" })
+              .toBuffer();
+
+            // Light blur for overall frosted panel
+            const lightBlurred = await sharp(resizedBuffer).blur(5).toBuffer();
+
+            // Edge mask: keeps sharp photo edges, transparent panel hole
+            const edgeMask = Buffer.from(
+              `<svg width="800" height="500">
+                <defs>
+                  <mask id="m">
+                    <rect width="800" height="500" fill="white" />
+                    <rect x="50" y="20" width="700" height="460" rx="20" ry="20" fill="black" />
+                  </mask>
+                </defs>
+                <rect width="800" height="500" fill="white" mask="url(#m)" />
+              </svg>`,
+            );
+
+            const sharpEdges = await sharp(resizedBuffer)
+              .composite([{ input: edgeMask, blend: "dest-in" }])
+              .png()
+              .toBuffer();
+
+            // Light panel tint + darker bands behind text areas for readability
+            const overlays = Buffer.from(
+              `<svg width="800" height="500">
+                <!-- Light tint over entire panel -->
+                <rect x="50" y="20" width="700" height="460" rx="20" ry="20"
+                      fill="rgba(0, 0, 0, 0.20)" />
+                <!-- Darker band behind title + verse text -->
+                <rect x="70" y="80" width="660" height="280" rx="14" ry="14"
+                      fill="rgba(0, 0, 0, 0.30)" />
+                <!-- Darker band behind translation + URL -->
+                <rect x="100" y="385" width="600" height="80" rx="14" ry="14"
+                      fill="rgba(0, 0, 0, 0.30)" />
+              </svg>`,
+            );
+
+            // Composite: light blur → sharp edges → overlay bands
+            imagePipeline = sharp(lightBlurred).composite([
+              { input: sharpEdges, gravity: "center" },
+              { input: overlays, gravity: "center" },
+            ]);
+          } else {
+            // Fallback to gradient if image fetch failed
+            imagePipeline = createGradientPipeline();
+          }
+        } else {
+          imagePipeline = createGradientPipeline();
+        }
         //Composite Layers: Background -> Icon -> Text
         const compositeOperations = [];
         if (randomIconSvgBuffer) {
@@ -318,7 +445,7 @@ export const generateVerseImage = onRequest(
             {
               count: admin.firestore.FieldValue.increment(1),
             },
-            { merge: true }
+            { merge: true },
           );
         } catch (error) {
           functions.logger.error("Failed to update count", error);
@@ -339,7 +466,7 @@ export const generateVerseImage = onRequest(
         }
       }
     });
-  }
+  },
 );
 
 /**
@@ -375,5 +502,5 @@ export const getVerseCount = onRequest(
         }
       }
     });
-  }
+  },
 );

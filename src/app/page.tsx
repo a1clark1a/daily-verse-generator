@@ -93,7 +93,7 @@ export default async function Home() {
 
             {/* Generate Button */}
             <Box mt={4}>
-              <VerseGenerator />
+              <VerseGenerator dailyImageUrl={dailyImage?.url ?? null} />
             </Box>
           </VStack>
         </Container>
