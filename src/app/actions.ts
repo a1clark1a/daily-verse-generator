@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { VALID_TRANSLATIONS, type Translation } from "@/lib/translations";
 
 export async function generateVerseAction(
@@ -34,7 +34,6 @@ export async function generateVerseAction(
     const data = await res.json();
 
     revalidateTag("verse-count");
-    revalidatePath("/");
     return { imageUrl: data.imageUrl };
   } catch (error) {
     console.error(error);
