@@ -4,7 +4,7 @@ import { revalidateTag } from "next/cache";
 import { VALID_TRANSLATIONS, type Translation } from "@/lib/translations";
 
 export async function generateVerseAction(
-  translation: string = "kjv"
+  translation: string = "kjv",
 ): Promise<{
   imageUrl?: string;
   error?: string;
@@ -46,7 +46,9 @@ export async function getInitialVerseCount() {
     const url = process.env.GET_VERSE_COUNT_URL;
     if (!url) throw new Error("No count url detected");
 
-    const res = await fetch(url, { next: { tags: ["verse-count"], revalidate: 60 } });
+    const res = await fetch(url, {
+      next: { tags: ["verse-count"], revalidate: 60 },
+    });
 
     if (!res.ok) return 0;
     const data = await res.json();
@@ -63,7 +65,8 @@ export async function getDailyImage() {
     // Calculate day of year for deterministic image selection
     const today = new Date();
     const dayOfYear = Math.floor(
-      (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
+      (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) /
+        86400000,
     );
 
     const accessKey = process.env.UNSPLASH_ACCESS_KEY;
@@ -80,7 +83,7 @@ export async function getDailyImage() {
       `https://api.unsplash.com/search/photos?query=nature peaceful landscape&orientation=landscape&per_page=30&page=${page}&client_id=${accessKey}`,
       {
         next: { revalidate: 86400, tags: ["daily-image"] },
-      }
+      },
     );
 
     if (!response.ok) {
