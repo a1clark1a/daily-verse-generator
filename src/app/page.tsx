@@ -1,4 +1,3 @@
-import Image from "next/image";
 import {
   Link as ChakraLink,
   Text,
@@ -15,6 +14,7 @@ import { Header } from "@/components/verseGenerator/Header";
 import { TranslationProvider } from "@/contexts/TranslationContext";
 
 import { FooterContainer } from "@/components/verseGenerator/VerseGeneratorElements";
+import { BannerImage } from "@/components/banner/BannerImage";
 
 import { getInitialVerseCount, getDailyImage } from "@/app/actions";
 
@@ -58,33 +58,10 @@ export default async function Home() {
         >
           <VStack gap={8} align="center">
             {/* Banner Image */}
-            <Box
-              width={{ base: "90%", md: "80%", lg: "70%" }}
-              maxW="800px"
-              height={{ base: "200px", md: "300px" }}
-              borderRadius="lg"
-              overflow="hidden"
-              border="2px solid"
-              borderColor="whiteAlpha.300"
-              boxShadow={{
-                _light: "0 25px 50px -12px rgba(44, 82, 130, 0.25)",
-                _dark: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-              }}
-              bg="whiteAlpha.100"
-              backdropFilter="blur(10px)"
-              position="relative"
-            >
-              <Image
-                src={dailyImage?.url || bannerImage}
-                alt={dailyImage?.alt || "Tranquil Banner"}
-                fill
-                style={{
-                  objectFit: "cover",
-                  objectPosition: "center",
-                }}
-                priority
-              />
-            </Box>
+            <BannerImage
+              src={dailyImage?.url || bannerImage}
+              alt={dailyImage?.alt || "Tranquil Banner"}
+            />
 
             {/* Photo Credit */}
             {dailyImage && (
@@ -116,7 +93,7 @@ export default async function Home() {
 
             {/* Generate Button */}
             <Box mt={4}>
-              <VerseGenerator />
+              <VerseGenerator dailyImageUrl={dailyImage?.url ?? null} />
             </Box>
           </VStack>
         </Container>

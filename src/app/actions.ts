@@ -4,7 +4,9 @@ import { revalidateTag } from "next/cache";
 import { VALID_TRANSLATIONS, type Translation } from "@/lib/translations";
 
 export async function generateVerseAction(
-  translation: string = "kjv"
+  translation: string = "kjv",
+  backgroundMode: "gradient" | "image" = "gradient",
+  unsplashImageUrl: string | null = null,
 ): Promise<{
   imageUrl?: string;
   error?: string;
@@ -12,6 +14,18 @@ export async function generateVerseAction(
   try {
     if (!VALID_TRANSLATIONS.includes(translation as Translation)) {
       return { error: "Invalid translation" };
+    }
+
+    // Validate Unsplash URL to prevent SSRF
+    if (unsplashImageUrl) {
+      try {
+        const parsed = new URL(unsplashImageUrl);
+        if (parsed.hostname !== "images.unsplash.com") {
+          return { error: "Invalid image URL" };
+        }
+      } catch {
+        return { error: "Invalid image URL" };
+      }
     }
 
     const url = process.env.GENERATE_VERSE_URL;
@@ -24,7 +38,11 @@ export async function generateVerseAction(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ translation }),
+      body: JSON.stringify({
+        translation,
+        backgroundMode,
+        unsplashImageUrl: backgroundMode === "image" ? unsplashImageUrl : null,
+      }),
       cache: "no-store",
     });
 
@@ -46,7 +64,9 @@ export async function getInitialVerseCount() {
     const url = process.env.GET_VERSE_COUNT_URL;
     if (!url) throw new Error("No count url detected");
 
-    const res = await fetch(url, { next: { tags: ["verse-count"], revalidate: 60 } });
+    const res = await fetch(url, {
+      next: { tags: ["verse-count"], revalidate: 60 },
+    });
 
     if (!res.ok) return 0;
     const data = await res.json();
@@ -63,7 +83,8 @@ export async function getDailyImage() {
     // Calculate day of year for deterministic image selection
     const today = new Date();
     const dayOfYear = Math.floor(
-      (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
+      (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) /
+        86400000,
     );
 
     const accessKey = process.env.UNSPLASH_ACCESS_KEY;
@@ -80,7 +101,7 @@ export async function getDailyImage() {
       `https://api.unsplash.com/search/photos?query=nature peaceful landscape&orientation=landscape&per_page=30&page=${page}&client_id=${accessKey}`,
       {
         next: { revalidate: 86400, tags: ["daily-image"] },
-      }
+      },
     );
 
     if (!response.ok) {

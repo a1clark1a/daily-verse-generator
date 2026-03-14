@@ -6,9 +6,13 @@ import {
   Center,
   Container,
   ContainerProps,
+  HStack,
+  IconButton,
   Text,
   TextProps,
 } from "@chakra-ui/react";
+import { FaPalette, FaImage } from "react-icons/fa";
+import { Tooltip } from "@/components/ui/tooltip";
 
 export const FooterContainer = (props: ContainerProps) => {
   return (
@@ -94,5 +98,113 @@ export const GenerateVerseButtonText = (props: TextProps) => {
       textAlign={"center"}
       {...props}
     />
+  );
+};
+
+interface BackgroundModeToggleProps {
+  value: "gradient" | "image";
+  onChange: (mode: "gradient" | "image") => void;
+}
+
+export const BackgroundModeToggle = ({
+  value,
+  onChange,
+}: BackgroundModeToggleProps) => {
+  return (
+    <HStack gap={2} role="radiogroup" aria-label="Verse background style">
+      <Tooltip content="Gradient background" showArrow openDelay={300}>
+        <IconButton
+          aria-label="Gradient background"
+          aria-checked={value === "gradient"}
+          role="radio"
+          onClick={() => onChange("gradient")}
+          size="md"
+          variant={value === "gradient" ? "solid" : "outline"}
+          bg={
+            value === "gradient"
+              ? {
+                  _light: "tranquilNavy.500",
+                  _dark: "tranquilTeal.600",
+                }
+              : "transparent"
+          }
+          color={
+            value === "gradient"
+              ? "white"
+              : {
+                  _light: "tranquilNavy.500",
+                  _dark: "tranquilTeal.300",
+                }
+          }
+          borderColor={{
+            _light: "tranquilNavy.400",
+            _dark: "tranquilTeal.500",
+          }}
+          _hover={{
+            bg:
+              value === "gradient"
+                ? {
+                    _light: "tranquilNavy.600",
+                    _dark: "tranquilTeal.500",
+                  }
+                : {
+                    _light: "tranquilNavy.50",
+                    _dark: "whiteAlpha.100",
+                  },
+            transform: "scale(1.05)",
+          }}
+          transition="all 0.2s"
+        >
+          <FaPalette />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip content="Photo background" showArrow openDelay={300}>
+        <IconButton
+          aria-label="Photo background"
+          aria-checked={value === "image"}
+          role="radio"
+          onClick={() => onChange("image")}
+          size="md"
+          variant={value === "image" ? "solid" : "outline"}
+          bg={
+            value === "image"
+              ? {
+                  _light: "tranquilNavy.500",
+                  _dark: "tranquilTeal.600",
+                }
+              : "transparent"
+          }
+          color={
+            value === "image"
+              ? "white"
+              : {
+                  _light: "tranquilNavy.500",
+                  _dark: "tranquilTeal.300",
+                }
+          }
+          borderColor={{
+            _light: "tranquilNavy.400",
+            _dark: "tranquilTeal.500",
+          }}
+          _hover={{
+            bg:
+              value === "image"
+                ? {
+                    _light: "tranquilNavy.600",
+                    _dark: "tranquilTeal.500",
+                  }
+                : {
+                    _light: "tranquilNavy.50",
+                    _dark: "whiteAlpha.100",
+                  },
+            transform: "scale(1.05)",
+          }}
+          transition="all 0.2s"
+        >
+          <FaImage />
+        </IconButton>
+      </Tooltip>
+    </HStack>
   );
 };

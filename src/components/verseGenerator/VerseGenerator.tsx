@@ -26,12 +26,17 @@ import {
 import {
   GenerateVerseButton,
   GenerateVerseButtonText,
+  BackgroundModeToggle,
 } from "@/components/verseGenerator/VerseGeneratorElements";
 
 import { generateVerseAction } from "@/app/actions";
 import { useTranslation } from "@/contexts/TranslationContext";
 
-export function VerseGenerator() {
+interface VerseGeneratorProps {
+  dailyImageUrl?: string | null;
+}
+
+export function VerseGenerator({ dailyImageUrl = null }: VerseGeneratorProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -39,6 +44,9 @@ export function VerseGenerator() {
   const [supportsShare, setSupportsShare] = useState(false);
   const [supportsClipboard, setSupportsClipboard] = useState(false);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied">("idle");
+  const [backgroundMode, setBackgroundMode] = useState<"gradient" | "image">(
+    "gradient",
+  );
   const { translation } = useTranslation();
 
   useEffect(() => {
@@ -46,7 +54,7 @@ export function VerseGenerator() {
     setSupportsClipboard(
       typeof navigator !== "undefined" &&
         "clipboard" in navigator &&
-        typeof ClipboardItem !== "undefined"
+        typeof ClipboardItem !== "undefined",
     );
   }, []);
 
@@ -56,7 +64,11 @@ export function VerseGenerator() {
     setIsOpen(true);
 
     startTransition(async () => {
-      const result = await generateVerseAction(translation);
+      const result = await generateVerseAction(
+        translation,
+        backgroundMode,
+        backgroundMode === "image" ? dailyImageUrl : null,
+      );
       if (result.error) {
         setError(result.error);
       } else if (result.imageUrl) {
@@ -85,7 +97,7 @@ export function VerseGenerator() {
   };
 
   const handleShare = async (
-    platform: "facebook" | "twitter" | "instagram" | "native"
+    platform: "facebook" | "twitter" | "instagram" | "native",
   ) => {
     if (!imageUrl) return;
 
@@ -116,7 +128,7 @@ export function VerseGenerator() {
         // Instagram doesn't have a web share API, so we download and prompt user
         handleDownload();
         alert(
-          "Image downloaded! Please upload it to Instagram from your device."
+          "Image downloaded! Please upload it to Instagram from your device.",
         );
         return;
       }
@@ -131,7 +143,7 @@ export function VerseGenerator() {
           window.open(
             `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
             "_blank",
-            "width=600,height=400"
+            "width=600,height=400",
           );
           break;
         case "twitter":
@@ -139,7 +151,7 @@ export function VerseGenerator() {
           window.open(
             `https://twitter.com/intent/tweet?text=${text}&url=${shareUrl}`,
             "_blank",
-            "width=600,height=400"
+            "width=600,height=400",
           );
           break;
       }
@@ -167,13 +179,21 @@ export function VerseGenerator() {
 
   return (
     <>
-      <GenerateVerseButton
-        onClick={handleGenerateClick}
-        loading={isPending}
-        disabled={isPending}
-      >
-        <GenerateVerseButtonText>Generate Verse</GenerateVerseButtonText>
-      </GenerateVerseButton>
+      <VStack gap={4} align="center">
+        {dailyImageUrl && (
+          <BackgroundModeToggle
+            value={backgroundMode}
+            onChange={setBackgroundMode}
+          />
+        )}
+        <GenerateVerseButton
+          onClick={handleGenerateClick}
+          loading={isPending}
+          disabled={isPending}
+        >
+          <GenerateVerseButtonText>Generate Verse</GenerateVerseButtonText>
+        </GenerateVerseButton>
+      </VStack>
 
       <Dialog.Root // Main wrapper, controls state
         lazyMount // Only mount content when open
@@ -237,8 +257,19 @@ export function VerseGenerator() {
                       h="auto"
                       position="relative"
                       transition="transform 0.3s ease-in-out"
+                      cursor="pointer"
                       _hover={{
-                        transform: "scale(1.15)",
+                        transform: {
+                          base: "none",
+                          md: "scale(1.4)",
+                        },
+                        zIndex: 10,
+                      }}
+                      _active={{
+                        transform: {
+                          base: "scale(1.3)",
+                          md: "scale(1.4)",
+                        },
                         zIndex: 10,
                       }}
                     >
@@ -249,7 +280,7 @@ export function VerseGenerator() {
                         borderRadius="md"
                         objectFit="contain"
                         maxW="100%"
-                        maxH="400px"
+                        maxH={{ base: "300px", md: "400px" }}
                         placeSelf={"center"}
                       />
                     </Box>
@@ -279,32 +310,32 @@ export function VerseGenerator() {
                       <HStack gap={3}>
                         {/* Native Share (Mobile) - Only show if Web Share API is available */}
                         {supportsShare && (
-                            <IconButton
-                              aria-label="Share"
-                              onClick={() => handleShare("native")}
-                              size="lg"
-                              variant="outline"
-                              colorScheme="teal"
-                              borderColor={{
-                                _light: "tranquilTeal.400",
-                                _dark: "tranquilTeal.300",
-                              }}
-                              color={{
-                                _light: "tranquilTeal.600",
-                                _dark: "tranquilTeal.200",
-                              }}
-                              _hover={{
-                                bg: {
-                                  _light: "tranquilTeal.50",
-                                  _dark: "tranquilTeal.900",
-                                },
-                                transform: "scale(1.1)",
-                              }}
-                              transition="all 0.2s"
-                            >
-                              <FaShare size={20} />
-                            </IconButton>
-                          )}
+                          <IconButton
+                            aria-label="Share"
+                            onClick={() => handleShare("native")}
+                            size="lg"
+                            variant="outline"
+                            colorScheme="teal"
+                            borderColor={{
+                              _light: "tranquilTeal.400",
+                              _dark: "tranquilTeal.300",
+                            }}
+                            color={{
+                              _light: "tranquilTeal.600",
+                              _dark: "tranquilTeal.200",
+                            }}
+                            _hover={{
+                              bg: {
+                                _light: "tranquilTeal.50",
+                                _dark: "tranquilTeal.900",
+                              },
+                              transform: "scale(1.1)",
+                            }}
+                            transition="all 0.2s"
+                          >
+                            <FaShare size={20} />
+                          </IconButton>
+                        )}
 
                         {/* Facebook */}
                         <IconButton
